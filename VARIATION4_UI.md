@@ -10,36 +10,36 @@
 
 ## 1. Design Identity
 
-| Attribute | Value |
-|-----------|-------|
-| Theme name | Teal / Sidebar |
-| Primary colour | `#0D9488` (Teal-600) |
-| Primary light | `#F0FDFA` (Teal-50) |
-| Page background | `#FAFAF9` (warm off-white) |
-| Surface (cards) | `#FFFFFF` |
-| Border | `#E2E8F0` / `#E8EDF2` |
-| Text — primary | `#0F172A` |
-| Text — secondary | `#374151` |
-| Text — muted | `#64748B` |
-| Text — placeholder | `#94A3B8` |
-| Text — disabled | `#CBD5E1` |
-| Danger | `#EF4444` |
-| Success | `#059669` |
-| Font family | `Inter, system-ui, sans-serif` |
-| Border radius — cards | `14px` |
-| Border radius — buttons | `9px` |
-| Border radius — pills/tags | `999px` |
-| Border radius — icon boxes | `9–10px` |
+| Attribute                  | Value                          |
+| -------------------------- | ------------------------------ |
+| Theme name                 | Teal / Sidebar                 |
+| Primary colour             | `#0D9488` (Teal-600)           |
+| Primary light              | `#F0FDFA` (Teal-50)            |
+| Page background            | `#FAFAF9` (warm off-white)     |
+| Surface (cards)            | `#FFFFFF`                      |
+| Border                     | `#E2E8F0` / `#E8EDF2`          |
+| Text — primary             | `#0F172A`                      |
+| Text — secondary           | `#374151`                      |
+| Text — muted               | `#64748B`                      |
+| Text — placeholder         | `#94A3B8`                      |
+| Text — disabled            | `#CBD5E1`                      |
+| Danger                     | `#EF4444`                      |
+| Success                    | `#059669`                      |
+| Font family                | `Inter, system-ui, sans-serif` |
+| Border radius — cards      | `14px`                         |
+| Border radius — buttons    | `9px`                          |
+| Border radius — pills/tags | `999px`                        |
+| Border radius — icon boxes | `9–10px`                       |
 
 ### Design tokens (copy these at the top of every V4 file)
 
 ```js
-const TEAL      = '#0D9488'
-const TEAL_LT   = '#F0FDFA'
-const PAGE_BG   = '#FAFAF9'
-const NAV_W     = 240          // expanded sidebar width
-const COLLAPSED_W = 60         // collapsed sidebar width
-const FF        = 'Inter, system-ui, sans-serif'
+const TEAL = '#0D9488';
+const TEAL_LT = '#F0FDFA';
+const PAGE_BG = '#FAFAF9';
+const NAV_W = 240; // expanded sidebar width
+const COLLAPSED_W = 60; // collapsed sidebar width
+const FF = 'Inter, system-ui, sans-serif';
 ```
 
 ---
@@ -62,12 +62,17 @@ const FF        = 'Inter, system-ui, sans-serif'
 
 ```jsx
 <div style={{ display: 'flex', minHeight: '100vh', background: PAGE_BG, fontFamily: FF }}>
-  <LeftNav collapsed={navCollapsed} onToggle={() => setNavCollapsed(o => !o)} />
-  <div style={{
-    marginLeft: navCollapsed ? COLLAPSED_W : NAV_W,
-    transition: 'margin-left 0.22s ease',
-    flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0,
-  }}>
+  <LeftNav collapsed={navCollapsed} onToggle={() => setNavCollapsed((o) => !o)} />
+  <div
+    style={{
+      marginLeft: navCollapsed ? COLLAPSED_W : NAV_W,
+      transition: 'margin-left 0.22s ease',
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      minWidth: 0,
+    }}
+  >
     <TopBar />
     <div style={{ padding: '28px 28px 48px', display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* page content */}
@@ -77,6 +82,7 @@ const FF        = 'Inter, system-ui, sans-serif'
 ```
 
 **Rules:**
+
 - `LeftNav` is always `position: fixed`, `top: 0`, `left: 0`, `zIndex: 40`
 - `TopBar` is always `position: sticky`, `top: 0`, `zIndex: 30`
 - Content div uses `marginLeft` that animates with the nav collapse
@@ -88,14 +94,14 @@ const FF        = 'Inter, system-ui, sans-serif'
 
 ### Constants
 
-| Prop | Expanded | Collapsed |
-|------|----------|-----------|
-| Width | `240px` | `60px` |
-| Logo area | Full wordmark + subtitle | Logo icon only, centered |
-| Nav items | Icon + label + badge | Icon only, centered |
-| "Main Menu" label | Visible | Hidden |
-| Profile row | Avatar + name + role + chevron | Avatar only, centered |
-| Toggle button | `<ChevronLeft>` (left-pointing) | `<ChevronRight>` (right-pointing) |
+| Prop              | Expanded                        | Collapsed                         |
+| ----------------- | ------------------------------- | --------------------------------- |
+| Width             | `240px`                         | `60px`                            |
+| Logo area         | Full wordmark + subtitle        | Logo icon only, centered          |
+| Nav items         | Icon + label + badge            | Icon only, centered               |
+| "Main Menu" label | Visible                         | Hidden                            |
+| Profile row       | Avatar + name + role + chevron  | Avatar only, centered             |
+| Toggle button     | `<ChevronLeft>` (left-pointing) | `<ChevronRight>` (right-pointing) |
 
 ### LeftNav component signature
 
@@ -108,11 +114,11 @@ function LeftNav({ active: activeItem, collapsed, onToggle }) { ... }
 
 ```js
 const mainNav = [
-  { id: 'dashboard',           label: 'Dashboard',           icon: <LayoutDashboard size={17} /> },
-  { id: 'clinic-management',   label: 'Clinic Management',   icon: <Building2 size={17} /> },
+  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={17} /> },
+  { id: 'clinic-management', label: 'Clinic Management', icon: <Building2 size={17} /> },
   { id: 'resource-management', label: 'Resource Management', icon: <Boxes size={17} /> },
-  { id: 'messages',            label: 'Messages',            icon: <MessageSquare size={17} />, badge: 3 },
-]
+  { id: 'messages', label: 'Messages', icon: <MessageSquare size={17} />, badge: 3 },
+];
 ```
 
 ### Navigation click handlers
@@ -131,15 +137,34 @@ onClick={() => {
 <button
   onClick={onToggle}
   style={{
-    position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)',
-    width: 24, height: 24, borderRadius: '50%',
-    background: '#ffffff', border: '1.5px solid #E8EDF2',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-    zIndex: 50, color: '#94A3B8', flexShrink: 0,
+    position: 'absolute',
+    right: -12,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: 24,
+    height: 24,
+    borderRadius: '50%',
+    background: '#ffffff',
+    border: '1.5px solid #E8EDF2',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+    zIndex: 50,
+    color: '#94A3B8',
+    flexShrink: 0,
   }}
-  onMouseEnter={e => { e.currentTarget.style.background = TEAL; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = TEAL }}
-  onMouseLeave={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.borderColor = '#E8EDF2' }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.background = TEAL;
+    e.currentTarget.style.color = '#fff';
+    e.currentTarget.style.borderColor = TEAL;
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.background = '#ffffff';
+    e.currentTarget.style.color = '#94A3B8';
+    e.currentTarget.style.borderColor = '#E8EDF2';
+  }}
 >
   {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
 </button>
@@ -163,17 +188,40 @@ When collapsed, hovering a nav item shows a dark floating label:
 ```
 
 Tooltip renders inside `NavItem` when `collapsed && showTooltip`:
+
 ```jsx
-<div style={{
-  position: 'absolute', left: 'calc(100% + 10px)', top: '50%', transform: 'translateY(-50%)',
-  background: '#1E293B', color: '#fff', fontSize: 12.5, fontWeight: 500,
-  padding: '6px 12px', borderRadius: 7, whiteSpace: 'nowrap',
-  pointerEvents: 'none', zIndex: 200, boxShadow: '0 4px 14px rgba(0,0,0,0.22)',
-}}>
+<div
+  style={{
+    position: 'absolute',
+    left: 'calc(100% + 10px)',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: '#1E293B',
+    color: '#fff',
+    fontSize: 12.5,
+    fontWeight: 500,
+    padding: '6px 12px',
+    borderRadius: 7,
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
+    zIndex: 200,
+    boxShadow: '0 4px 14px rgba(0,0,0,0.22)',
+  }}
+>
   {/* Left-pointing triangle pointer */}
-  <div style={{ position: 'absolute', right: '100%', top: '50%', transform: 'translateY(-50%)',
-    width: 0, height: 0, borderTop: '5px solid transparent',
-    borderBottom: '5px solid transparent', borderRight: '5px solid #1E293B' }} />
+  <div
+    style={{
+      position: 'absolute',
+      right: '100%',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: 0,
+      height: 0,
+      borderTop: '5px solid transparent',
+      borderBottom: '5px solid transparent',
+      borderRight: '5px solid #1E293B',
+    }}
+  />
   {label}
 </div>
 ```
@@ -184,44 +232,65 @@ Tooltip renders inside `NavItem` when `collapsed && showTooltip`:
 function NavItem({ icon, label, active, onClick, badge, collapsed, showTooltip }) {
   return (
     <div style={{ position: 'relative' }}>
-      <button onClick={onClick} style={{
-        width: '100%', display: 'flex', alignItems: 'center',
-        gap: collapsed ? 0 : 11,
-        padding: collapsed ? '10px 0' : '9px 12px',
-        justifyContent: collapsed ? 'center' : 'flex-start',
-        borderRadius: 9,
-        background: active ? TEAL : 'transparent',
-        border: 'none', cursor: 'pointer',
-        color: active ? '#ffffff' : '#64748B',
-        fontSize: 13.5, fontWeight: active ? 600 : 400,
-        fontFamily: FF, transition: 'background 0.15s, color 0.15s', textAlign: 'left',
-      }}
-        onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#F1F5F9' }}
-        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
+      <button
+        onClick={onClick}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: collapsed ? 0 : 11,
+          padding: collapsed ? '10px 0' : '9px 12px',
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          borderRadius: 9,
+          background: active ? TEAL : 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          color: active ? '#ffffff' : '#64748B',
+          fontSize: 13.5,
+          fontWeight: active ? 600 : 400,
+          fontFamily: FF,
+          transition: 'background 0.15s, color 0.15s',
+          textAlign: 'left',
+        }}
+        onMouseEnter={(e) => {
+          if (!active) e.currentTarget.style.background = '#F1F5F9';
+        }}
+        onMouseLeave={(e) => {
+          if (!active) e.currentTarget.style.background = 'transparent';
+        }}
       >
         <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0, opacity: active ? 1 : 0.65 }}>{icon}</span>
         {!collapsed && <span style={{ flex: 1 }}>{label}</span>}
         {!collapsed && badge !== undefined && (
-          <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 6px', borderRadius: 999,
-            background: active ? 'rgba(255,255,255,0.25)' : TEAL, color: '#fff', lineHeight: 1.4 }}>
+          <span
+            style={{
+              fontSize: 10.5,
+              fontWeight: 700,
+              padding: '2px 6px',
+              borderRadius: 999,
+              background: active ? 'rgba(255,255,255,0.25)' : TEAL,
+              color: '#fff',
+              lineHeight: 1.4,
+            }}
+          >
             {badge}
           </span>
         )}
       </button>
       {/* tooltip rendered here when collapsed + showTooltip */}
     </div>
-  )
+  );
 }
 ```
 
 ### Active state rules
 
-| Page | `active` prop value |
-|------|---------------------|
-| DashboardV4 | `'dashboard'` |
+| Page               | `active` prop value   |
+| ------------------ | --------------------- |
+| DashboardV4        | `'dashboard'`         |
 | ClinicManagementV4 | `'clinic-management'` |
-| ClinicDetailV4 | `'clinic-management'` |
-| MessagesV4 | `'messages'` |
+| ClinicDetailV4     | `'clinic-management'` |
+| MessagesV4         | `'messages'`          |
 
 ### Profile dropdown (bottom of nav)
 
@@ -240,25 +309,44 @@ function NavItem({ icon, label, active, onClick, badge, collapsed, showTooltip }
 ```jsx
 function TopBar({ title, subtitle }) {
   return (
-    <div style={{
-      height: 80, background: '#ffffff',
-      borderBottom: '1px solid #E8EDF2',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 28px',
-      boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-      position: 'sticky', top: 0, zIndex: 30,
-    }}>
+    <div
+      style={{
+        height: 80,
+        background: '#ffffff',
+        borderBottom: '1px solid #E8EDF2',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 28px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 30,
+      }}
+    >
       <div>
-        <h1 style={{ fontSize: 17, fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: FF, letterSpacing: '-0.01em' }}>{title}</h1>
-        <p  style={{ fontSize: 12.5, color: '#94A3B8', margin: 0, fontFamily: FF }}>{subtitle}</p>
+        <h1
+          style={{
+            fontSize: 17,
+            fontWeight: 700,
+            color: '#0F172A',
+            margin: 0,
+            fontFamily: FF,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {title}
+        </h1>
+        <p style={{ fontSize: 12.5, color: '#94A3B8', margin: 0, fontFamily: FF }}>{subtitle}</p>
       </div>
       {/* right side: Bell + profile */}
     </div>
-  )
+  );
 }
 ```
 
 **Right side always contains:**
+
 1. Bell icon button — 38×38px, border `1px solid #E2E8F0`, red dot indicator at top-right
 2. Profile pill — avatar gradient `linear-gradient(135deg, #14B8A6, #0D9488)`, initials "SM", name + email, ChevronDown
 
@@ -272,10 +360,11 @@ function TopBar({ title, subtitle }) {
 **Route:** variant 4 only via `DashboardRoute` in `App.jsx`
 
 #### State
+
 ```js
-const [navCollapsed, setNavCollapsed] = useState(false)
-const [period,       setPeriod]       = useState('Monthly')   // 'Monthly' | 'Quarterly' | 'Yearly'
-const [selection,    setSelection]    = useState('Apr')        // context selector value
+const [navCollapsed, setNavCollapsed] = useState(false);
+const [period, setPeriod] = useState('Monthly'); // 'Monthly' | 'Quarterly' | 'Yearly'
+const [selection, setSelection] = useState('Apr'); // context selector value
 ```
 
 #### Sections (top → bottom)
@@ -309,7 +398,7 @@ Daily data is generated deterministically via `genDays(count, baseApcm, baseRpm)
   <SelectFilter options={SECONDARY_OPTIONS[period]} value={selection} onChange={setSelection} />
   {/* Period pills */}
   <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 999, padding: 3, gap: 1 }}>
-    {['Monthly','Quarterly','Yearly'].map(p => (
+    {['Monthly', 'Quarterly', 'Yearly'].map((p) => (
       <Pill key={p} label={p} active={period === p} onClick={() => handlePeriodChange(p)} />
     ))}
   </div>
@@ -331,6 +420,7 @@ function KpiCard({ icon, label, subLabel, value, trendUp, trendText }) { ... }
 #### CPT Code cards
 
 4 cards: G0557, G0556, 99454, 99457
+
 - White background, `border-left: 4px solid TEAL`
 - Shows: CPT code (large teal), description, patients billed count, revenue
 
@@ -352,13 +442,16 @@ function KpiCard({ icon, label, subLabel, value, trendUp, trendText }) { ... }
 ```jsx
 // Outer container
 <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: 10, padding: 4, gap: 3 }}>
-  {tabs.map(t => (
-    <button style={{
-      padding: '7px 16px', borderRadius: 7,
-      background: isActive ? '#ffffff' : 'transparent',
-      color: isActive ? TEAL : '#64748B',
-      boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.10)...' : 'none',
-    }}>
+  {tabs.map((t) => (
+    <button
+      style={{
+        padding: '7px 16px',
+        borderRadius: 7,
+        background: isActive ? '#ffffff' : 'transparent',
+        color: isActive ? TEAL : '#64748B',
+        boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.10)...' : 'none',
+      }}
+    >
       {t.label}
       {/* count badge */}
       <span style={{ background: isActive ? TEAL : 'rgba(100,116,139,0.12)', color: isActive ? '#fff' : '#64748B' }}>
@@ -394,17 +487,28 @@ function KpiCard({ icon, label, subLabel, value, trendUp, trendText }) { ... }
 #### Layout
 
 Two-panel content area side by side:
+
 - **Left (65%):** Clinic info cards + Users table
 - **Right (35%):** Stats cards + Program breakdown + EHR status
 
 #### Back button
 
 ```jsx
-<button onClick={() => navigate('/clinic-management')} style={{
-  display: 'flex', alignItems: 'center', gap: 7,
-  background: 'none', border: 'none', cursor: 'pointer',
-  fontSize: 13, fontWeight: 500, color: '#64748B', padding: '6px 0',
-}}>
+<button
+  onClick={() => navigate('/clinic-management')}
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: 13,
+    fontWeight: 500,
+    color: '#64748B',
+    padding: '6px 0',
+  }}
+>
   <ArrowLeft size={15} /> Back to Clinic Management
 </button>
 ```
@@ -444,8 +548,19 @@ Section headers inside cards: `fontSize: 11`, uppercase, `letterSpacing: 0.08em`
 #### Not-found state
 
 When `clinic === undefined`, renders a full-page message with LeftNav still mounted:
+
 ```jsx
-<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', gap: 16, color: '#94A3B8' }}>
+<div
+  style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'column',
+    gap: 16,
+    color: '#94A3B8',
+  }}
+>
   <Building2 size={40} strokeWidth={1.2} />
   <p>Clinic not found</p>
   <button onClick={() => navigate('/clinic-management')}>← Back</button>
@@ -474,21 +589,22 @@ When `clinic === undefined`, renders a full-page message with LeftNav still moun
 Full height: `calc(100vh - 64px)` (subtracts TopBar height)
 
 #### Panel widths
-| Panel | Width |
-|-------|-------|
-| Left (patient list) | 20% |
-| Middle (chat) | 55% |
-| Right (patient detail) | 25% |
+
+| Panel                  | Width |
+| ---------------------- | ----- |
+| Left (patient list)    | 20%   |
+| Middle (chat)          | 55%   |
+| Right (patient detail) | 25%   |
 
 #### Sender colour map
 
 ```js
 const SENDER = {
-  patient:   { bg: '#F0FDFA', border: '#99F6E4', text: '#0F172A', label: 'Patient',       dot: TEAL      },
-  ai:        { bg: '#F5F3FF', border: '#DDD6FE', text: '#0F172A', label: 'AI Agent',      dot: '#7C3AED' },
-  nurse:     { bg: '#EFF6FF', border: '#BFDBFE', text: '#0F172A', label: 'Virtual Nurse', dot: '#2563EB' },
-  physician: { bg: '#F0FDF4', border: '#BBF7D0', text: '#0F172A', label: 'Physician',     dot: '#059669' },
-}
+  patient: { bg: '#F0FDFA', border: '#99F6E4', text: '#0F172A', label: 'Patient', dot: TEAL },
+  ai: { bg: '#F5F3FF', border: '#DDD6FE', text: '#0F172A', label: 'AI Agent', dot: '#7C3AED' },
+  nurse: { bg: '#EFF6FF', border: '#BFDBFE', text: '#0F172A', label: 'Virtual Nurse', dot: '#2563EB' },
+  physician: { bg: '#F0FDF4', border: '#BBF7D0', text: '#0F172A', label: 'Physician', dot: '#059669' },
+};
 ```
 
 #### Left panel
@@ -507,6 +623,7 @@ const SENDER = {
 #### Right panel (patient detail)
 
 Sections (top → bottom):
+
 1. **Patient header** — avatar, name, age/DOB/gender row, program pills (APCM, RPM), EHR ID
 2. **Latest Vitals** — list with value + unit + timestamp + red alert dot for abnormal
 3. **Active Alerts** — high (red) / medium (amber) severity rows with coloured left border
@@ -517,13 +634,13 @@ Sections (top → bottom):
 
 #### Mock sessions (5 patients)
 
-| # | Patient | Condition |
-|---|---------|-----------|
-| 1 | Emma Rodriguez | Hypertension |
-| 2 | Michael Chen | Type II Diabetes |
-| 3 | Linda Foster | Heart Failure |
-| 4 | David Kim | Obesity |
-| 5 | Patricia Lee | Atrial Fibrillation |
+| #   | Patient        | Condition           |
+| --- | -------------- | ------------------- |
+| 1   | Emma Rodriguez | Hypertension        |
+| 2   | Michael Chen   | Type II Diabetes    |
+| 3   | Linda Foster   | Heart Failure       |
+| 4   | David Kim      | Obesity             |
+| 5   | Patricia Lee   | Atrial Fibrillation |
 
 ---
 
@@ -551,14 +668,24 @@ Or use shadcn `<Badge>` with Tailwind classes (ClinicManagementV4 uses this patt
 ```jsx
 function Pill({ label, active, onClick }) {
   return (
-    <button onClick={onClick} style={{
-      padding: '5px 13px', borderRadius: 999, border: 'none', cursor: 'pointer',
-      background: active ? TEAL : 'transparent',
-      color: active ? '#fff' : '#64748B',
-      fontSize: 12, fontWeight: active ? 600 : 500,
-      fontFamily: FF, transition: 'all 0.15s ease',
-    }}>{label}</button>
-  )
+    <button
+      onClick={onClick}
+      style={{
+        padding: '5px 13px',
+        borderRadius: 999,
+        border: 'none',
+        cursor: 'pointer',
+        background: active ? TEAL : 'transparent',
+        color: active ? '#fff' : '#64748B',
+        fontSize: 12,
+        fontWeight: active ? 600 : 500,
+        fontFamily: FF,
+        transition: 'all 0.15s ease',
+      }}
+    >
+      {label}
+    </button>
+  );
 }
 ```
 
@@ -570,7 +697,7 @@ Used in DashboardV4 chart header. Custom dropdown built with inline styles.
 
 ```jsx
 function SelectFilter({ options, value, onChange }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   // trigger: border TEAL 44% opacity, background white, hover TEAL_LT
   // dropdown: position absolute, top calc(100% + 6px), right 0
   //           backdrop: position fixed, inset 0, zIndex 90
@@ -581,12 +708,19 @@ function SelectFilter({ options, value, onChange }) {
 ### Trend Badge
 
 ```jsx
-<span style={{
-  display: 'inline-flex', alignItems: 'center', gap: 4,
-  fontSize: 11.5, fontWeight: 600, padding: '3px 8px', borderRadius: 999,
-  background: trendUp ? 'rgba(16,185,129,0.10)' : 'rgba(239,68,68,0.10)',
-  color: trendUp ? '#059669' : '#DC2626',
-}}>
+<span
+  style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    fontSize: 11.5,
+    fontWeight: 600,
+    padding: '3px 8px',
+    borderRadius: 999,
+    background: trendUp ? 'rgba(16,185,129,0.10)' : 'rgba(239,68,68,0.10)',
+    color: trendUp ? '#059669' : '#DC2626',
+  }}
+>
   {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
   {trendText}
 </span>
@@ -610,12 +744,19 @@ function SelectFilter({ options, value, onChange }) {
 ### Icon box (KPI / feature)
 
 ```jsx
-<div style={{
-  width: 36, height: 36, borderRadius: 9,
-  background: TEAL_LT,
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  color: TEAL, flexShrink: 0,
-}}>
+<div
+  style={{
+    width: 36,
+    height: 36,
+    borderRadius: 9,
+    background: TEAL_LT,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: TEAL,
+    flexShrink: 0,
+  }}
+>
   <SomeIcon size={16} />
 </div>
 ```
@@ -624,18 +765,18 @@ function SelectFilter({ options, value, onChange }) {
 
 ## 7. Typography Scale
 
-| Use | fontSize | fontWeight | color |
-|-----|----------|------------|-------|
-| Page title (TopBar) | 17 | 700 | `#0F172A` |
-| Section heading | 15–16 | 700 | `#0F172A` |
-| Card title | 14–15 | 700 | `#0F172A` |
-| Body / label | 13–13.5 | 500–600 | `#374151` |
-| Sub-label / helper | 11.5–12.5 | 400–500 | `#94A3B8` |
-| Table header | 11 | 700 | `#64748B` (uppercase) |
-| Table cell | 13–13.5 | 400–600 | `#0F172A` / `#64748B` |
-| KPI value | 30 | 800 | `#0F172A` |
-| Section meta label | 10–11 | 700 | `#CBD5E1` (uppercase) |
-| Badge / pill text | 10.5–12 | 600–700 | varies |
+| Use                 | fontSize  | fontWeight | color                 |
+| ------------------- | --------- | ---------- | --------------------- |
+| Page title (TopBar) | 17        | 700        | `#0F172A`             |
+| Section heading     | 15–16     | 700        | `#0F172A`             |
+| Card title          | 14–15     | 700        | `#0F172A`             |
+| Body / label        | 13–13.5   | 500–600    | `#374151`             |
+| Sub-label / helper  | 11.5–12.5 | 400–500    | `#94A3B8`             |
+| Table header        | 11        | 700        | `#64748B` (uppercase) |
+| Table cell          | 13–13.5   | 400–600    | `#0F172A` / `#64748B` |
+| KPI value           | 30        | 800        | `#0F172A`             |
+| Section meta label  | 10–11     | 700        | `#CBD5E1` (uppercase) |
+| Badge / pill text   | 10.5–12   | 600–700    | varies                |
 
 ---
 
@@ -670,16 +811,40 @@ V4 uses **Recharts** (already in dependencies). Do NOT use Chart.js for V4.
 ```jsx
 <LineChart data={chartData} margin={{ top: 6, right: 8, left: 8, bottom: 0 }}>
   <CartesianGrid strokeDasharray="4 4" stroke="#F1F5F9" vertical={false} />
-  <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false}
-    interval={period === 'Monthly' ? 4 : 0} />
-  <YAxis tickFormatter={v => `$${(v/1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: '#94A3B8' }}
-    axisLine={false} tickLine={false} width={44} />
+  <XAxis
+    dataKey="label"
+    tick={{ fontSize: 11, fill: '#94A3B8' }}
+    axisLine={false}
+    tickLine={false}
+    interval={period === 'Monthly' ? 4 : 0}
+  />
+  <YAxis
+    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+    tick={{ fontSize: 11, fill: '#94A3B8' }}
+    axisLine={false}
+    tickLine={false}
+    width={44}
+  />
   <Tooltip content={<CustomTooltip />} />
   <Legend iconType="circle" iconSize={8} />
-  <Line type="monotone" dataKey="apcm" name="APCM Revenue" stroke={TEAL} strokeWidth={2.5}
-    dot={{ r: 3.5, fill: TEAL, stroke: 'white', strokeWidth: 2 }} activeDot={{ r: 5 }} />
-  <Line type="monotone" dataKey="rpm" name="RPM Revenue" stroke="#64748B" strokeWidth={2}
-    strokeDasharray="6 3" dot={{ r: 3, fill: '#64748B', stroke: 'white', strokeWidth: 2 }} />
+  <Line
+    type="monotone"
+    dataKey="apcm"
+    name="APCM Revenue"
+    stroke={TEAL}
+    strokeWidth={2.5}
+    dot={{ r: 3.5, fill: TEAL, stroke: 'white', strokeWidth: 2 }}
+    activeDot={{ r: 5 }}
+  />
+  <Line
+    type="monotone"
+    dataKey="rpm"
+    name="RPM Revenue"
+    stroke="#64748B"
+    strokeWidth={2}
+    strokeDasharray="6 3"
+    dot={{ r: 3, fill: '#64748B', stroke: 'white', strokeWidth: 2 }}
+  />
 </LineChart>
 ```
 
@@ -687,19 +852,36 @@ V4 uses **Recharts** (already in dependencies). Do NOT use Chart.js for V4.
 
 ```jsx
 function CustomTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null
+  if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#1E293B', borderRadius: 10, padding: '10px 14px',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.20)', fontFamily: FF }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', margin: '0 0 6px',
-        textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+    <div
+      style={{
+        background: '#1E293B',
+        borderRadius: 10,
+        padding: '10px 14px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.20)',
+        fontFamily: FF,
+      }}
+    >
+      <p
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: '#94A3B8',
+          margin: '0 0 6px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+        }}
+      >
+        {label}
+      </p>
       {payload.map((entry, i) => (
         <p key={i} style={{ fontSize: 13, fontWeight: 600, color: entry.color, margin: '2px 0' }}>
           {entry.name}: ${entry.value.toLocaleString()}
         </p>
       ))}
     </div>
-  )
+  );
 }
 ```
 
@@ -707,9 +889,20 @@ function CustomTooltip({ active, payload, label }) {
 
 ```jsx
 <PieChart>
-  <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={85}
-    paddingAngle={2} dataKey="value" startAngle={90} endAngle={-270}>
-    {pieData.map((entry, i) => <Cell key={i} fill={entry.color} stroke="none" />)}
+  <Pie
+    data={pieData}
+    cx="50%"
+    cy="50%"
+    innerRadius={60}
+    outerRadius={85}
+    paddingAngle={2}
+    dataKey="value"
+    startAngle={90}
+    endAngle={-270}
+  >
+    {pieData.map((entry, i) => (
+      <Cell key={i} fill={entry.color} stroke="none" />
+    ))}
   </Pie>
   <Tooltip content={<PieTooltip />} />
 </PieChart>
@@ -722,13 +915,21 @@ Pie data colours: APCM = `TEAL`, RPM = `#64748B`, Other = `#CBD5E1`
 ## 10. Required Imports for Every V4 Page
 
 ```jsx
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Building2, Boxes, MessageSquare, Settings,
-  Bell, LogOut, ChevronDown, ChevronLeft, ChevronRight,
+  LayoutDashboard,
+  Building2,
+  Boxes,
+  MessageSquare,
+  Settings,
+  Bell,
+  LogOut,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   /* page-specific icons */
-} from 'lucide-react'
+} from 'lucide-react';
 ```
 
 Always import **both** `ChevronLeft` and `ChevronRight` — the collapse toggle needs both regardless of initial state.
@@ -737,16 +938,16 @@ Always import **both** `ChevronLeft` and `ChevronRight` — the collapse toggle 
 
 ## 11. Shadow & Elevation System
 
-| Level | Box Shadow |
-|-------|-----------|
-| Cards (default) | `0 1px 3px rgba(0,0,0,0.05)` |
-| LeftNav | `2px 0 12px rgba(0,0,0,0.04)` |
-| TopBar | `0 1px 4px rgba(0,0,0,0.04)` |
+| Level              | Box Shadow                                                |
+| ------------------ | --------------------------------------------------------- |
+| Cards (default)    | `0 1px 3px rgba(0,0,0,0.05)`                              |
+| LeftNav            | `2px 0 12px rgba(0,0,0,0.04)`                             |
+| TopBar             | `0 1px 4px rgba(0,0,0,0.04)`                              |
 | Modals / dropdowns | `0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)` |
-| Teal CTA button | `0 4px 14px rgba(13,148,136,0.22)` |
-| Toggle button | `0 2px 6px rgba(0,0,0,0.08)` |
-| Logo icon | `0 4px 10px rgba(13,148,136,0.27)` |
-| Tooltip | `0 4px 14px rgba(0,0,0,0.22)` |
+| Teal CTA button    | `0 4px 14px rgba(13,148,136,0.22)`                        |
+| Toggle button      | `0 2px 6px rgba(0,0,0,0.08)`                              |
+| Logo icon          | `0 4px 10px rgba(13,148,136,0.27)`                        |
+| Tooltip            | `0 4px 14px rgba(0,0,0,0.22)`                             |
 
 ---
 
@@ -769,12 +970,12 @@ When building any new page in Variation 4, follow this checklist:
 
 ## 13. File Map
 
-| File | Route | Description |
-|------|-------|-------------|
-| `src/pages/dashboard/DashboardV4.jsx` | `/dashboard` | Admin dashboard with KPI cards, revenue charts, billing stats |
-| `src/pages/dashboard/ClinicManagementV4.jsx` | `/clinic-management` | Clinic list table with add/manage actions |
-| `src/pages/dashboard/ClinicDetailV4.jsx` | `/clinic-management/:id` | Individual clinic detail, users, EHR status |
-| `src/pages/dashboard/MessagesV4.jsx` | `/messages` | 3-panel messaging (20/55/25) |
-| `src/components/demo/DemoSwitcher.jsx` | — | Floating variant switcher (Variation 3 = id 4) |
-| `src/context/VariantContext.jsx` | — | React context + localStorage for active variant |
-| `src/App.jsx` | — | Route definitions with variant-aware wrappers |
+| File                                         | Route                    | Description                                                   |
+| -------------------------------------------- | ------------------------ | ------------------------------------------------------------- |
+| `src/pages/dashboard/DashboardV4.jsx`        | `/dashboard`             | Admin dashboard with KPI cards, revenue charts, billing stats |
+| `src/pages/dashboard/ClinicManagementV4.jsx` | `/clinic-management`     | Clinic list table with add/manage actions                     |
+| `src/pages/dashboard/ClinicDetailV4.jsx`     | `/clinic-management/:id` | Individual clinic detail, users, EHR status                   |
+| `src/pages/dashboard/MessagesV4.jsx`         | `/messages`              | 3-panel messaging (20/55/25)                                  |
+| `src/components/demo/DemoSwitcher.jsx`       | —                        | Floating variant switcher (Variation 3 = id 4)                |
+| `src/context/VariantContext.jsx`             | —                        | React context + localStorage for active variant               |
+| `src/App.jsx`                                | —                        | Route definitions with variant-aware wrappers                 |
