@@ -25,3 +25,5 @@ export const config = {
   // Base URL or other app-specific configs can be added here
   apiUrl: import.meta.env.VITE_API_URL || '',
 } as const;
+
+export const API_BASE_URL = import.meta.env.VITE_API_URL as string;
