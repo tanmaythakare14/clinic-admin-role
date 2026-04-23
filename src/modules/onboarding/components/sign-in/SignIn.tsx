@@ -68,19 +68,18 @@ export function SignIn(): React.JSX.Element {
                 HIPAA Compliant Platform
               </div>
               <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
-                Intelligent Care
-                <br />
-                Management for
+                Intelligent Care Management for
                 <br />
                 <span style={{ color: '#99f6e4' }}>Modern Clinics</span>
               </h1>
-              <p className="text-white/70 text-base leading-relaxed max-w-xs">
-                Streamline patient care, manage your team, and monitor health outcomes — all in one secure platform.
+              <p className="text-white/70 text-base leading-relaxed max-w-xl">
+                Streamline patient care, manage your team, and monitor 
+                health outcomes all in one secure platform.
               </p>
             </div>
 
             {/* Feature highlights */}
-            <div className="space-y-4 mb-10">
+            <div className="space-y-8 mb-14">
               {[
                 {
                   icon: <Shield size={16} />,
@@ -329,21 +328,6 @@ export function SignIn(): React.JSX.Element {
               </>
             )}
           </Button>
-
-          {/* Already have account */}
-          <p className="text-sm text-center mt-5" style={{ color: '#64748B' }}>
-            Already have an account?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/sign-in')}
-              className="font-semibold"
-              style={{ color: '#0D9488' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#0f766e')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = '#0D9488')}
-            >
-              Log In
-            </button>
-          </p>
         </div>
       </div>
     </div>

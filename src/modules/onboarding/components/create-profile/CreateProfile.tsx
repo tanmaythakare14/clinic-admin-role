@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Users, Activity, ArrowRight, Camera, UserCircle2, Check } from 'lucide-react';
+import { Shield, Users, Activity, ArrowRight, Camera, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -116,9 +116,7 @@ export function CreateProfile(): React.JSX.Element {
                 HIPAA Compliant Platform
               </div>
               <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
-                Intelligent Care
-                <br />
-                Management for
+                Intelligent Care Management for
                 <br />
                 <span style={{ color: '#99f6e4' }}>Modern Clinics</span>
               </h1>
@@ -181,7 +179,7 @@ export function CreateProfile(): React.JSX.Element {
 
       {/* ── Right Panel ── */}
       <div
-        className="flex-1 flex flex-col items-center justify-center px-6 py-12 lg:px-12"
+        className="flex-1 flex flex-col items-center justify-center px-6 py-10 lg:px-12 overflow-y-auto"
         style={{ background: '#FAFAF9' }}
       >
         {/* Mobile logo */}
@@ -265,12 +263,6 @@ export function CreateProfile(): React.JSX.Element {
 
           {/* ── Heading ── */}
           <div className="mb-7">
-            <div
-              className="inline-flex items-center justify-center rounded-2xl mb-4"
-              style={{ width: 52, height: 52, background: '#F0FDFA', border: '1px solid #99f6e4' }}
-            >
-              <UserCircle2 size={24} style={{ color: TEAL }} />
-            </div>
             <h2 className="font-bold text-[#0F172A] mb-1.5" style={{ fontSize: 24, letterSpacing: '-0.02em' }}>
               Create your profile
             </h2>
@@ -283,36 +275,56 @@ export function CreateProfile(): React.JSX.Element {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               {/* Avatar upload */}
-              <div
-                className="flex flex-col items-center gap-3 py-5 rounded-2xl"
-                style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}
-              >
-                <div className="relative">
-                  <div
-                    className="rounded-full overflow-hidden flex items-center justify-center"
-                    style={{ width: 88, height: 88, background: '#E2E8F0', border: `3px solid ${TEAL}` }}
+              <div>
+                <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151' }}>
+                  Profile Picture
+                </label>
+                <div className="flex items-center gap-4">
+                  {/* Dashed preview box */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden"
+                    style={{
+                      width: 72,
+                      height: 72,
+                      border: avatarSrc ? `2px solid ${TEAL}` : '2px dashed #CBD5E1',
+                      background: avatarSrc ? 'transparent' : '#F1F5F9',
+                      cursor: 'pointer',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!avatarSrc) e.currentTarget.style.borderColor = TEAL;
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!avatarSrc) e.currentTarget.style.borderColor = '#CBD5E1';
+                    }}
+                    aria-label="Upload profile picture"
                   >
                     {avatarSrc ? (
                       <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
-                      <UserCircle2 size={52} color="#94A3B8" />
+                      <span style={{ fontSize: 24, color: '#94A3B8', lineHeight: 1 }}>+</span>
                     )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-0 right-0 flex items-center justify-center rounded-full"
-                    style={{
-                      width: 28,
-                      height: 28,
-                      background: TEAL,
-                      border: '2px solid #FAFAF9',
-                      cursor: 'pointer',
-                    }}
-                    aria-label="Upload profile picture"
-                  >
-                    <Camera size={13} color="#fff" />
                   </button>
+
+                  {/* Text + upload button */}
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-semibold" style={{ color: '#374151' }}>
+                      Upload Profile Picture
+                    </p>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="gap-1.5 text-xs font-semibold"
+                    >
+                      <Camera size={12} />
+                      {avatarSrc ? 'Change' : 'Upload'}
+                    </Button>
+                  </div>
+
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -321,24 +333,6 @@ export function CreateProfile(): React.JSX.Element {
                     onChange={handleAvatarChange}
                   />
                 </div>
-                <div className="text-center">
-                  <p className="text-sm font-semibold" style={{ color: '#374151' }}>
-                    Profile Photo
-                  </p>
-                  <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
-                    JPG, PNG or GIF · Max 5 MB
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors"
-                  style={{ color: TEAL, background: '#F0FDFA', border: `1px solid #99f6e4` }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#ccfbf1')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = '#F0FDFA')}
-                >
-                  {avatarSrc ? 'Change Photo' : 'Upload Photo'}
-                </button>
               </div>
 
               {/* Admin Name — disabled */}

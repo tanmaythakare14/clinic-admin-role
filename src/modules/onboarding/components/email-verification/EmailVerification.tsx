@@ -4,7 +4,7 @@ import { Shield, Users, Activity, ArrowRight, Mail, RotateCcw } from 'lucide-rea
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { SET_PASSWORD_PATH, SIGN_IN_PATH } from '../../constants';
+import { SET_PASSWORD_PATH } from '../../constants';
 
 const TEAL = '#0D9488';
 const FF = 'Inter, system-ui, sans-serif';
@@ -141,9 +141,7 @@ export function EmailVerification(): React.JSX.Element {
                 HIPAA Compliant Platform
               </div>
               <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
-                Intelligent Care
-                <br />
-                Management for
+                Intelligent Care Management for
                 <br />
                 <span style={{ color: '#99f6e4' }}>Modern Clinics</span>
               </h1>
@@ -358,21 +356,6 @@ export function EmailVerification(): React.JSX.Element {
               </>
             )}
           </Button>
-
-          {/* Back to sign in */}
-          <p className="text-sm text-center mt-5" style={{ color: '#64748B' }}>
-            Already have an account?{' '}
-            <button
-              type="button"
-              onClick={() => navigate(SIGN_IN_PATH)}
-              className="font-semibold"
-              style={{ color: TEAL }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#0f766e')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = TEAL)}
-            >
-              Log In
-            </button>
-          </p>
         </div>
       </div>
     </div>
