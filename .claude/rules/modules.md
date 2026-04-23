@@ -92,7 +92,7 @@ export interface PatientDTO {
   mrn: string;
   firstName: string;
   lastName: string;
-  dateOfBirth: string;      // ISO string from API
+  dateOfBirth: string; // ISO string from API
   gender: 'MALE' | 'FEMALE' | 'OTHER';
   email?: string;
   phone?: string;
@@ -165,7 +165,7 @@ Never import from another module's internals:
 
 ```ts
 // Wrong
-import { patientApi } from '@/modules/patient/service/api';  // inside billing module
+import { patientApi } from '@/modules/patient/service/api'; // inside billing module
 
 // Correct — shared logic belongs in src/hooks/ or src/utils/
 import { formatPatientName } from '@/utils/patient';

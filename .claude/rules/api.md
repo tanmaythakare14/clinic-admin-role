@@ -29,7 +29,7 @@ export async function getPatients(params: PatientListParams): Promise<PatientLis
   const res = await fetch(url.toString(), {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
+      Authorization: `Bearer ${getAuthToken()}`,
     },
   });
 
@@ -101,7 +101,7 @@ try {
   toast.success('Patient enrolled successfully');
 } catch (error) {
   if (error instanceof ApiError) {
-    toast.error(error.message);  // already user-friendly from handleHttpError
+    toast.error(error.message); // already user-friendly from handleHttpError
   } else {
     toast.error('Something went wrong. Please try again.');
   }
@@ -177,12 +177,12 @@ Group functions by entity and CRUD operation:
 
 ```ts
 // service/api.ts
-export async function listPatients(params: PatientListParams): Promise<PatientListResponse>
-export async function getPatient(id: string): Promise<PatientDTO>
-export async function createPatient(data: CreatePatientDTO): Promise<PatientDTO>
-export async function updatePatient(id: string, data: UpdatePatientDTO): Promise<PatientDTO>
-export async function deletePatient(id: string): Promise<void>
-export async function enrollPatient(data: EnrollPatientDTO): Promise<PatientDTO>
+export async function listPatients(params: PatientListParams): Promise<PatientListResponse>;
+export async function getPatient(id: string): Promise<PatientDTO>;
+export async function createPatient(data: CreatePatientDTO): Promise<PatientDTO>;
+export async function updatePatient(id: string, data: UpdatePatientDTO): Promise<PatientDTO>;
+export async function deletePatient(id: string): Promise<void>;
+export async function enrollPatient(data: EnrollPatientDTO): Promise<PatientDTO>;
 ```
 
 ## No API calls outside the service layer

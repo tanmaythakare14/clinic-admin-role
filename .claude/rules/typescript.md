@@ -81,14 +81,14 @@ export interface PatientDTO {
   mrn: string;
   firstName: string;
   lastName: string;
-  email?: string;           // optional in API
-  phone?: string;           // optional in API
+  email?: string; // optional in API
+  phone?: string; // optional in API
   secondaryInsurance?: InsuranceDTO;
 }
 
 // Wrong — assuming always present
 export interface PatientDTO {
-  email: string;            // will cause runtime errors
+  email: string; // will cause runtime errors
 }
 ```
 
@@ -158,23 +158,20 @@ export const PROGRAM_TYPE = {
   APCM: 'APCM',
 } as const;
 
-export type ProgramType = typeof PROGRAM_TYPE[keyof typeof PROGRAM_TYPE];
+export type ProgramType = (typeof PROGRAM_TYPE)[keyof typeof PROGRAM_TYPE];
 
 // Avoid TypeScript enum keyword — it generates runtime code
-enum ProgramType { RPM, APCM }  // Wrong
+enum ProgramType {
+  RPM,
+  APCM,
+} // Wrong
 ```
 
 ## Type guards for narrowing
 
 ```ts
 function isPatientDTO(value: unknown): value is PatientDTO {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'id' in value &&
-    'mrn' in value &&
-    'firstName' in value
-  );
+  return typeof value === 'object' && value !== null && 'id' in value && 'mrn' in value && 'firstName' in value;
 }
 ```
 
@@ -185,5 +182,5 @@ function isPatientDTO(value: unknown): value is PatientDTO {
 const patient = responseBody as PatientDTO;
 
 // Correct — validate first
-const patient = parsePatientDTO(responseBody);  // throws if invalid
+const patient = parsePatientDTO(responseBody); // throws if invalid
 ```

@@ -27,19 +27,19 @@ npm run commit         # commitizen (conventional commits)
 
 ## Tech Stack — Approved Libraries Only
 
-| Purpose | Library | Notes |
-|---|---|---|
-| UI components | **shadcn/ui** | ONLY UI library — no MUI, Ant Design, Chakra, Mantine |
-| Styling | **Tailwind CSS v4** | Utility classes only, no inline styles |
-| Forms | **React Hook Form + Zod** | shadcn/ui `<Form>` depends on these |
-| Data tables | **TanStack Table** | Paired with shadcn/ui `<Table>` primitives |
-| Charts | **shadcn/ui Charts** | Wraps Recharts — do not use Recharts directly |
-| Routing | **React Router v6** | Already installed |
-| State | **Redux Toolkit** | Auth + UI state only (not server data) |
-| Icons | **Lucide React** | Already used by shadcn/ui |
-| Toasts | **Sonner** | Via shadcn/ui `<Sonner>` component |
-| Dates | **date-fns + shadcn/ui Calendar** | Never use moment.js |
-| Class utilities | **clsx + tailwind-merge + cva** | Required by shadcn/ui internals |
+| Purpose         | Library                           | Notes                                                 |
+| --------------- | --------------------------------- | ----------------------------------------------------- |
+| UI components   | **shadcn/ui**                     | ONLY UI library — no MUI, Ant Design, Chakra, Mantine |
+| Styling         | **Tailwind CSS v4**               | Utility classes only, no inline styles                |
+| Forms           | **React Hook Form + Zod**         | shadcn/ui `<Form>` depends on these                   |
+| Data tables     | **TanStack Table**                | Paired with shadcn/ui `<Table>` primitives            |
+| Charts          | **shadcn/ui Charts**              | Wraps Recharts — do not use Recharts directly         |
+| Routing         | **React Router v6**               | Already installed                                     |
+| State           | **Redux Toolkit**                 | Auth + UI state only (not server data)                |
+| Icons           | **Lucide React**                  | Already used by shadcn/ui                             |
+| Toasts          | **Sonner**                        | Via shadcn/ui `<Sonner>` component                    |
+| Dates           | **date-fns + shadcn/ui Calendar** | Never use moment.js                                   |
+| Class utilities | **clsx + tailwind-merge + cva**   | Required by shadcn/ui internals                       |
 
 Adding any library not in this table requires team approval first.
 
@@ -49,15 +49,15 @@ Adding any library not in this table requires team approval first.
 
 All feature code lives inside `src/modules/`. Never add business logic to `src/` root or `src/components/`.
 
-| Module | Screens | Description |
-|---|---|---|
-| `onboarding` | 9 | Invitation flow, email verify, set password, create profile, EHR setup, sign in, forgot password |
-| `dashboard` | 2 | KPI cards, revenue graphs, enrollment trends, billing stats |
-| `patient` | 15 | Patient list, detail view with 8 tabs (vitals, medications, care plan, billing, tasks, appointments, activity log, programs/devices), enrollment (5-step multi-form) |
-| `user-management` | 3 | Physician/RN/DHN list, add user, view detail |
-| `billing` | 3 | Billing table, monthly summary, CPT code generation, billing history |
-| `messages` | 2 | Read-only conversation list, patient context panel |
-| `settings` | 8 | User profile, clinic profile, EHR/EMR settings, notifications, change password, ToS, FAQs, help & support |
+| Module            | Screens | Description                                                                                                                                                          |
+| ----------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onboarding`      | 9       | Invitation flow, email verify, set password, create profile, EHR setup, sign in, forgot password                                                                     |
+| `dashboard`       | 2       | KPI cards, revenue graphs, enrollment trends, billing stats                                                                                                          |
+| `patient`         | 15      | Patient list, detail view with 8 tabs (vitals, medications, care plan, billing, tasks, appointments, activity log, programs/devices), enrollment (5-step multi-form) |
+| `user-management` | 3       | Physician/RN/DHN list, add user, view detail                                                                                                                         |
+| `billing`         | 3       | Billing table, monthly summary, CPT code generation, billing history                                                                                                 |
+| `messages`        | 2       | Read-only conversation list, patient context panel                                                                                                                   |
+| `settings`        | 8       | User profile, clinic profile, EHR/EMR settings, notifications, change password, ToS, FAQs, help & support                                                            |
 
 ---
 
