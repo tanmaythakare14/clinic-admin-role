@@ -30,16 +30,16 @@ shadcn/ui defines CSS variables in `globals.css` (`--background`, `--foreground`
 
 Common semantic color tokens:
 
-| Token | Use case |
-|---|---|
-| `bg-background` / `text-foreground` | Page background and primary text |
-| `bg-card` / `text-card-foreground` | Card backgrounds |
-| `bg-primary` / `text-primary-foreground` | Primary action buttons |
-| `bg-secondary` / `text-secondary-foreground` | Secondary elements |
-| `bg-muted` / `text-muted-foreground` | Disabled, placeholder, subtle text |
+| Token                                            | Use case                                |
+| ------------------------------------------------ | --------------------------------------- |
+| `bg-background` / `text-foreground`              | Page background and primary text        |
+| `bg-card` / `text-card-foreground`               | Card backgrounds                        |
+| `bg-primary` / `text-primary-foreground`         | Primary action buttons                  |
+| `bg-secondary` / `text-secondary-foreground`     | Secondary elements                      |
+| `bg-muted` / `text-muted-foreground`             | Disabled, placeholder, subtle text      |
 | `bg-destructive` / `text-destructive-foreground` | Errors, delete actions, critical alerts |
-| `border-border` | All borders |
-| `ring-ring` | Focus rings |
+| `border-border`                                  | All borders                             |
+| `ring-ring`                                      | Focus rings                             |
 
 ## Spacing via Tailwind scale
 
@@ -81,19 +81,16 @@ When a component has multiple visual variants, use `class-variance-authority`:
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
-const alertVariants = cva(
-  'flex items-center gap-3 rounded-lg border p-4 text-sm',
-  {
-    variants: {
-      severity: {
-        critical: 'border-destructive bg-destructive/10 text-destructive',
-        warning: 'border-yellow-500 bg-yellow-50 text-yellow-800',
-        info: 'border-blue-500 bg-blue-50 text-blue-800',
-      },
+const alertVariants = cva('flex items-center gap-3 rounded-lg border p-4 text-sm', {
+  variants: {
+    severity: {
+      critical: 'border-destructive bg-destructive/10 text-destructive',
+      warning: 'border-yellow-500 bg-yellow-50 text-yellow-800',
+      info: 'border-blue-500 bg-blue-50 text-blue-800',
     },
-    defaultVariants: { severity: 'info' },
-  }
-);
+  },
+  defaultVariants: { severity: 'info' },
+});
 
 interface AlertBannerProps extends VariantProps<typeof alertVariants> {
   message: string;
@@ -151,7 +148,5 @@ Use Tailwind typography utilities. Do not use arbitrary font sizes.
 Use Tailwind responsive prefixes for adaptive layouts. The clinic portal is desktop-first.
 
 ```tsx
-<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-  {/* KPI cards */}
-</div>
+<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">{/* KPI cards */}</div>
 ```

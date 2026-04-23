@@ -4,10 +4,10 @@
 
 Redux manages two domains:
 
-| Slice | What goes here |
-|---|---|
-| `authSlice` | Authenticated user, token, session expiry, role |
-| `uiSlice` | Sidebar open/close, active modal, global loading overlay |
+| Slice       | What goes here                                           |
+| ----------- | -------------------------------------------------------- |
+| `authSlice` | Authenticated user, token, session expiry, role          |
+| `uiSlice`   | Sidebar open/close, active modal, global loading overlay |
 
 **Server/API data (patient list, billing records, user list) does NOT go in Redux.** Use component-local state + the service layer directly. If the data needs to be shared between sibling components, lift state to the nearest common parent or use a module-level context.
 
@@ -91,16 +91,13 @@ Every async Redux action must use `createAsyncThunk`. The thunk calls the servic
 
 ```ts
 // Correct — thunk delegates to service layer
-export const loginThunk = createAsyncThunk(
-  'auth/login',
-  async (credentials: LoginCredentials, { rejectWithValue }) => {
-    try {
-      return await authApi.login(credentials);  // service call
-    } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Login failed');
-    }
+export const loginThunk = createAsyncThunk('auth/login', async (credentials: LoginCredentials, { rejectWithValue }) => {
+  try {
+    return await authApi.login(credentials); // service call
+  } catch (error) {
+    return rejectWithValue(error instanceof Error ? error.message : 'Login failed');
   }
-);
+});
 
 // Wrong — fetch in a thunk
 export const loginThunk = createAsyncThunk('auth/login', async (credentials) => {
