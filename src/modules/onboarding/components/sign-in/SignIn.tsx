@@ -73,8 +73,7 @@ export function SignIn(): React.JSX.Element {
                 <span style={{ color: '#99f6e4' }}>Modern Clinics</span>
               </h1>
               <p className="text-white/70 text-base leading-relaxed max-w-xl">
-                Streamline patient care, manage your team, and monitor 
-                health outcomes all in one secure platform.
+                Streamline patient care, manage your team, and monitor health outcomes all in one secure platform.
               </p>
             </div>
 
