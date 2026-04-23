@@ -9,18 +9,18 @@ import {
   Plug,
   PlugZap,
   Trash2,
-  ToggleLeft,
-  ToggleRight,
   AlertCircle,
   Plus,
   ServerCrash,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Label } from '@/components/ui/label';
 import { CREATE_PROFILE_PATH, REVIEW_USERS_PATH, REVIEW_EHR_PATH, DASHBOARD_PATH } from '../../constants';
-
-const TEAL = '#0D9488';
-const FF = 'Inter, system-ui, sans-serif';
 
 const STEPS = [
   { label: 'Create Profile', path: CREATE_PROFILE_PATH },
@@ -28,11 +28,23 @@ const STEPS = [
   { label: 'Review EHR Details', path: REVIEW_EHR_PATH },
 ];
 
-const EHR_SYSTEM_COLORS: Record<string, { bg: string; color: string }> = {
-  Epic: { bg: '#EFF6FF', color: '#1D4ED8' },
-  Cerner: { bg: '#FFF7ED', color: '#C2410C' },
-  Athena: { bg: '#F0FDFA', color: '#0D9488' },
-  Meditech: { bg: '#F5F3FF', color: '#7C3AED' },
+const EHR_SYSTEM_BADGE_CLASS: Record<string, string> = {
+  Epic: 'bg-blue-50 text-blue-700 border-0',
+  Cerner: 'bg-orange-50 text-orange-700 border-0',
+  Athena: 'bg-teal-50 text-teal-700 border-0',
+  Meditech: 'bg-violet-50 text-violet-700 border-0',
+};
+
+const STATUS_BADGE_CLASS: Record<string, string> = {
+  Active: 'bg-teal-50 text-teal-700 border-0',
+  Inactive: 'bg-red-50 text-red-600 border-0',
+  Pending: 'bg-amber-50 text-amber-600 border-0',
+};
+
+const STATUS_DOT_CLASS: Record<string, string> = {
+  Active: 'bg-emerald-500',
+  Inactive: 'bg-rose-500',
+  Pending: 'bg-amber-500',
 };
 
 interface EHRDetails {
@@ -51,26 +63,15 @@ const MOCK_EHR: EHRDetails = {
   connectedOn: 'Mar 14, 2025',
 };
 
-const STATUS_STYLES: Record<EHRDetails['integrationStatus'], { bg: string; color: string; dot: string }> = {
-  Active: { bg: '#F0FDFA', color: '#0D9488', dot: '#10B981' },
-  Inactive: { bg: '#FFF1F2', color: '#E11D48', dot: '#F43F5E' },
-  Pending: { bg: '#FFFBEB', color: '#D97706', dot: '#F59E0B' },
-};
-
-/* ── EHR Set Up — card view ── */
 function EHRSetupView(): React.JSX.Element {
   const navigate = useNavigate();
   const [ehr] = useState<EHRDetails>(MOCK_EHR);
   const [smartOn, setSmartOn] = useState(ehr.smartAppEnabled);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const systemStyle = EHR_SYSTEM_COLORS[ehr.system];
-  const statusStyle = STATUS_STYLES[ehr.integrationStatus];
 
-  function handleToggleSmart(): void {
-    setSmartOn((v) => {
-      toast.success(`SMART App ${!v ? 'enabled' : 'disabled'}`);
-      return !v;
-    });
+  function handleToggleSmart(checked: boolean): void {
+    setSmartOn(checked);
+    toast.success(`SMART App ${checked ? 'enabled' : 'disabled'}`);
   }
 
   function handleRemove(): void {
@@ -86,139 +87,94 @@ function EHRSetupView(): React.JSX.Element {
 
   return (
     <>
-      {/* EHR Card */}
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{ border: '1px solid #E8EDF2', boxShadow: '0 1px 6px rgba(15,23,42,0.06)', background: '#fff' }}
-      >
-        {/* Card header */}
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #F1F5F9' }}>
-          <div className="flex items-center gap-3">
-            <div
-              className="flex items-center justify-center rounded-xl"
-              style={{ width: 42, height: 42, background: systemStyle.bg }}
-            >
-              <PlugZap size={20} style={{ color: systemStyle.color }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <p className="font-bold text-sm" style={{ color: '#0F172A' }}>
-                  {ehr.system}
-                </p>
-                <span
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: systemStyle.bg, color: systemStyle.color }}
-                >
-                  {ehr.system}
-                </span>
+      <Card className="rounded-2xl">
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex items-center justify-center rounded-xl w-[42px] h-[42px] ${EHR_SYSTEM_BADGE_CLASS[ehr.system]}`}
+              >
+                <PlugZap size={20} />
               </div>
-              <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
-                {ehr.environment}
-              </p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-bold text-sm text-foreground">{ehr.system}</p>
+                  <Badge variant="outline" className={EHR_SYSTEM_BADGE_CLASS[ehr.system]}>
+                    {ehr.system}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">{ehr.environment}</p>
+              </div>
             </div>
-          </div>
-          {/* Integration Status badge */}
-          <span
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full"
-            style={{ background: statusStyle.bg, color: statusStyle.color }}
-          >
-            <span className="inline-block rounded-full" style={{ width: 6, height: 6, background: statusStyle.dot }} />
-            {ehr.integrationStatus}
-          </span>
-        </div>
-
-        {/* Card body — detail rows */}
-        <div className="divide-y" style={{ borderColor: '#F8FAFC' }}>
-          {/* Connected on */}
-          <div className="flex items-center justify-between px-5 py-3.5">
-            <span className="text-xs font-semibold" style={{ color: '#64748B' }}>
-              Connected On
-            </span>
-            <span className="text-xs font-medium" style={{ color: '#0F172A' }}>
-              {ehr.connectedOn}
-            </span>
-          </div>
-
-          {/* SMART App Integration */}
-          <div className="flex items-center justify-between px-5 py-3.5">
-            <div>
-              <p className="text-xs font-semibold" style={{ color: '#64748B' }}>
-                SMART App Integration
-              </p>
-              <p className="text-[11px] mt-0.5" style={{ color: '#94A3B8' }}>
-                Enables secure third-party app access
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleToggleSmart}
-              className="flex items-center gap-2 text-xs font-semibold transition-colors"
-              style={{ color: smartOn ? TEAL : '#94A3B8' }}
-              aria-label="Toggle SMART App"
-            >
-              {smartOn ? (
-                <ToggleRight size={28} style={{ color: TEAL }} />
-              ) : (
-                <ToggleLeft size={28} style={{ color: '#CBD5E1' }} />
-              )}
-              <span style={{ color: smartOn ? TEAL : '#94A3B8' }}>{smartOn ? 'On' : 'Off'}</span>
-            </button>
-          </div>
-
-          {/* Integration Status row */}
-          <div className="flex items-center justify-between px-5 py-3.5">
-            <span className="text-xs font-semibold" style={{ color: '#64748B' }}>
-              Integration Status
-            </span>
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-semibold"
-              style={{ color: statusStyle.color }}
-            >
+            <Badge variant="outline" className={STATUS_BADGE_CLASS[ehr.integrationStatus]}>
               <span
-                className="inline-block rounded-full"
-                style={{ width: 6, height: 6, background: statusStyle.dot }}
+                className={`inline-block rounded-full w-1.5 h-1.5 mr-1.5 ${STATUS_DOT_CLASS[ehr.integrationStatus]}`}
               />
+              {ehr.integrationStatus}
+            </Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="divide-y divide-border px-0">
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <span className="text-xs font-semibold text-muted-foreground">Connected On</span>
+            <span className="text-xs font-medium text-foreground">{ehr.connectedOn}</span>
+          </div>
+
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <div>
+              <Label className="text-xs font-semibold text-muted-foreground" htmlFor="smart-toggle">
+                SMART App Integration
+              </Label>
+              <p className="text-[11px] mt-0.5 text-muted-foreground">Enables secure third-party app access</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch id="smart-toggle" checked={smartOn} onCheckedChange={handleToggleSmart} />
+              <span className={`text-xs font-semibold ${smartOn ? 'text-primary' : 'text-muted-foreground'}`}>
+                {smartOn ? 'On' : 'Off'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <span className="text-xs font-semibold text-muted-foreground">Integration Status</span>
+            <span
+              className={`inline-flex items-center gap-1.5 text-xs font-semibold ${STATUS_BADGE_CLASS[ehr.integrationStatus]}`}
+            >
+              <span className={`inline-block rounded-full w-1.5 h-1.5 ${STATUS_DOT_CLASS[ehr.integrationStatus]}`} />
               {ehr.integrationStatus}
             </span>
           </div>
-        </div>
+        </CardContent>
 
-        {/* Card footer — remove */}
-        <div className="px-5 py-4" style={{ borderTop: '1px solid #F8FAFC', background: '#FAFBFC' }}>
-          <button
+        <CardFooter>
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={handleRemove}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
-            style={{ color: '#94A3B8' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#E11D48')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#94A3B8')}
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5"
           >
             <Trash2 size={13} />
             Remove Connection
-          </button>
-        </div>
-      </div>
+          </Button>
+        </CardFooter>
+      </Card>
 
-      {/* Info notice */}
-      <div
-        className="flex items-start gap-3 mt-4 px-4 py-3 rounded-xl"
-        style={{ background: '#F0F9FF', border: '1px solid #BAE6FD' }}
-      >
-        <AlertCircle size={14} style={{ color: '#0284C7', flexShrink: 0, marginTop: 1 }} />
-        <p className="text-xs leading-relaxed" style={{ color: '#0369A1' }}>
+      <Alert className="mt-4 bg-sky-50 border-sky-200">
+        <AlertCircle size={14} className="text-sky-600" />
+        <AlertDescription className="text-sky-700 text-xs leading-relaxed">
           <span className="font-semibold">Set up by Super Admin.</span> Contact Super Admin Support to modify EHR system
           or credentials.
-        </p>
-      </div>
+        </AlertDescription>
+      </Alert>
 
-      {/* CTAs */}
       <div className="mt-6 flex gap-3">
         <Button
           type="button"
-          variant="secondary"
+          variant="outline"
           onClick={() => navigate(REVIEW_USERS_PATH)}
           className="h-11 px-5 text-sm font-semibold"
-          style={{ borderRadius: 9 }}
         >
           ← Back
         </Button>
@@ -226,26 +182,11 @@ function EHRSetupView(): React.JSX.Element {
           type="button"
           disabled={isSubmitting}
           onClick={handleContinue}
-          className="flex-1 h-11 text-sm font-semibold text-white flex items-center justify-center gap-2"
-          style={{
-            background: isSubmitting ? '#5eead4' : TEAL,
-            borderRadius: 9,
-            boxShadow: isSubmitting ? 'none' : '0 4px 14px rgba(13,148,136,0.25)',
-            border: 'none',
-          }}
-          onMouseEnter={(e) => {
-            if (!isSubmitting) e.currentTarget.style.background = '#0f766e';
-          }}
-          onMouseLeave={(e) => {
-            if (!isSubmitting) e.currentTarget.style.background = TEAL;
-          }}
+          className="flex-1 h-11 text-sm font-semibold"
         >
           {isSubmitting ? (
             <>
-              <span
-                className="inline-block rounded-full border-2 border-white/30 border-t-white animate-spin"
-                style={{ width: 16, height: 16 }}
-              />
+              <span className="inline-block rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin w-4 h-4" />
               Saving…
             </>
           ) : (
@@ -259,85 +200,57 @@ function EHRSetupView(): React.JSX.Element {
   );
 }
 
-/* ── EHR Not Set Up — empty state ── */
 function EHREmptyView(): React.JSX.Element {
   const navigate = useNavigate();
 
   return (
     <>
-      {/* Empty state card */}
-      <div
-        className="flex flex-col items-center justify-center py-14 px-8 rounded-2xl text-center"
-        style={{ border: '1.5px dashed #CBD5E1', background: '#fff' }}
-      >
-        {/* Illustration */}
-        <div className="relative mb-6">
-          <div
-            className="flex items-center justify-center rounded-full"
-            style={{ width: 80, height: 80, background: '#F8FAFC', border: '1px solid #E2E8F0' }}
-          >
-            <ServerCrash size={36} style={{ color: '#CBD5E1' }} />
+      <Card className="rounded-2xl border-dashed border-2 shadow-none">
+        <CardContent className="flex flex-col items-center justify-center py-14 px-8 text-center">
+          <div className="relative mb-6">
+            <div className="flex items-center justify-center rounded-full w-20 h-20 bg-muted border border-border">
+              <ServerCrash size={36} className="text-muted-foreground/50" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full w-[26px] h-[26px] bg-amber-50 border-2 border-card">
+              <Plug size={13} className="text-amber-500" />
+            </div>
           </div>
-          <div
-            className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full"
-            style={{ width: 26, height: 26, background: '#FFF7ED', border: '2px solid #fff' }}
+
+          <h3 className="font-bold text-foreground text-base mb-2">No EHR System Connected</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-[320px]">
+            Your Super Admin hasn't set up an EHR integration yet. You can add EHR details now or continue and set it up
+            later.
+          </p>
+
+          <Button
+            type="button"
+            onClick={() => toast.info('EHR setup flow coming soon!')}
+            className="inline-flex items-center gap-2 h-10 px-5 text-sm font-semibold"
           >
-            <Plug size={13} style={{ color: '#F59E0B' }} />
-          </div>
-        </div>
+            <Plus size={15} />
+            Add EHR Details
+          </Button>
+        </CardContent>
+      </Card>
 
-        <h3 className="font-bold mb-2" style={{ fontSize: 16, color: '#0F172A' }}>
-          No EHR System Connected
-        </h3>
-        <p className="text-sm leading-relaxed mb-6" style={{ color: '#64748B', maxWidth: 320 }}>
-          Your Super Admin hasn't set up an EHR integration yet. You can add EHR details now or continue and set it up
-          later.
-        </p>
-
-        <Button
-          type="button"
-          onClick={() => toast.info('EHR setup flow coming soon!')}
-          className="inline-flex items-center gap-2 h-10 px-5 text-sm font-semibold text-white"
-          style={{ background: TEAL, border: 'none', borderRadius: 9, boxShadow: '0 4px 14px rgba(13,148,136,0.22)' }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#0f766e')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = TEAL)}
-        >
-          <Plus size={15} />
-          Add EHR Details
-        </Button>
-      </div>
-
-      {/* Skip notice */}
-      <div
-        className="flex items-start gap-3 mt-4 px-4 py-3 rounded-xl"
-        style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}
-      >
-        <AlertCircle size={14} style={{ color: '#D97706', flexShrink: 0, marginTop: 1 }} />
-        <p className="text-xs leading-relaxed" style={{ color: '#92400E' }}>
+      <Alert className="mt-4 bg-amber-50 border-amber-200">
+        <AlertCircle size={14} className="text-amber-600" />
+        <AlertDescription className="text-amber-800 text-xs leading-relaxed">
           <span className="font-semibold">EHR not required to proceed.</span> You can complete onboarding and connect
           EHR from the dashboard later.
-        </p>
-      </div>
+        </AlertDescription>
+      </Alert>
 
-      {/* CTAs */}
       <div className="mt-6 flex gap-3">
         <Button
           type="button"
-          variant="secondary"
+          variant="outline"
           onClick={() => navigate(REVIEW_USERS_PATH)}
           className="h-11 px-5 text-sm font-semibold"
-          style={{ borderRadius: 9 }}
         >
           ← Back
         </Button>
-        <Button
-          type="button"
-          onClick={() => navigate(DASHBOARD_PATH)}
-          className="flex-1 h-11 text-sm font-semibold text-white flex items-center justify-center gap-2"
-          style={{ background: TEAL, borderRadius: 9, boxShadow: '0 4px 14px rgba(13,148,136,0.25)', border: 'none' }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#0f766e')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = TEAL)}
-        >
+        <Button type="button" onClick={() => navigate(DASHBOARD_PATH)} className="flex-1 h-11 text-sm font-semibold">
           Skip for Now <ArrowRight size={15} />
         </Button>
       </div>
@@ -345,42 +258,21 @@ function EHREmptyView(): React.JSX.Element {
   );
 }
 
-/* ── Main Screen ── */
 export function ReviewEHR(): React.JSX.Element {
   const [searchParams] = useSearchParams();
   const hasEHR = searchParams.get('scenario') !== 'empty';
 
   return (
-    <div className="min-h-screen flex" style={{ fontFamily: FF }}>
-      {/* ── Left Panel ── */}
-      <div
-        className="hidden lg:flex lg:w-[45%] flex-col relative overflow-hidden"
-        style={{ background: 'linear-gradient(145deg, #0D9488 0%, #0f766e 40%, #134e4a 100%)' }}
-      >
-        <div
-          className="absolute -top-24 -right-24 rounded-full opacity-10"
-          style={{ width: 320, height: 320, background: '#ffffff' }}
-        />
-        <div
-          className="absolute -bottom-16 -left-16 rounded-full opacity-10"
-          style={{ width: 280, height: 280, background: '#ffffff' }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5"
-          style={{ width: 500, height: 500, background: '#ffffff' }}
-        />
+    <div className="min-h-screen flex">
+      {/* Left Panel */}
+      <div className="hidden lg:flex lg:w-[45%] flex-col relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900">
+        <div className="absolute -top-24 -right-24 rounded-full opacity-10 w-80 h-80 bg-white" />
+        <div className="absolute -bottom-16 -left-16 rounded-full opacity-10 w-72 h-72 bg-white" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 bg-white w-[500px] h-[500px]" />
 
         <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
           <div className="flex items-center gap-3">
-            <div
-              className="flex items-center justify-center rounded-xl"
-              style={{
-                width: 44,
-                height: 44,
-                background: 'rgba(255,255,255,0.18)',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
-              }}
-            >
+            <div className="flex items-center justify-center rounded-xl bg-white/20 shadow-md w-11 h-11">
               <Activity size={22} className="text-white" />
             </div>
             <div>
@@ -391,17 +283,14 @@ export function ReviewEHR(): React.JSX.Element {
 
           <div className="flex flex-col flex-1 justify-center">
             <div className="pb-10">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold"
-                style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff' }}
-              >
-                <span className="inline-block rounded-full" style={{ width: 6, height: 6, background: '#34d399' }} />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold bg-white/15 text-white">
+                <span className="inline-block rounded-full w-1.5 h-1.5 bg-emerald-400" />
                 HIPAA Compliant Platform
               </div>
               <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
                 Intelligent Care Management for
                 <br />
-                <span style={{ color: '#99f6e4' }}>Modern Clinics</span>
+                <span className="text-teal-200">Modern Clinics</span>
               </h1>
               <p className="text-white/70 text-base leading-relaxed max-w-xs">
                 Streamline patient care, manage your team, and monitor health outcomes — all in one secure platform.
@@ -427,10 +316,7 @@ export function ReviewEHR(): React.JSX.Element {
                 },
               ].map((f) => (
                 <div key={f.title} className="flex items-start gap-3">
-                  <div
-                    className="flex items-center justify-center rounded-lg flex-shrink-0 mt-0.5"
-                    style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.15)', color: '#ffffff' }}
-                  >
+                  <div className="flex items-center justify-center rounded-lg flex-shrink-0 mt-0.5 w-8 h-8 bg-white/15 text-white">
                     {f.icon}
                   </div>
                   <div>
@@ -441,10 +327,7 @@ export function ReviewEHR(): React.JSX.Element {
               ))}
             </div>
 
-            <div
-              className="grid grid-cols-3 gap-4 rounded-2xl p-5"
-              style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.15)' }}
-            >
+            <div className="grid grid-cols-3 gap-4 rounded-2xl p-5 bg-white/10 border border-white/15">
               {[
                 { value: '2,400+', label: 'Active Patients' },
                 { value: '98.5%', label: 'Uptime SLA' },
@@ -460,26 +343,17 @@ export function ReviewEHR(): React.JSX.Element {
         </div>
       </div>
 
-      {/* ── Right Panel ── */}
-      <div
-        className="flex-1 flex flex-col items-center justify-center px-6 py-10 lg:px-12 overflow-y-auto"
-        style={{ background: '#FAFAF9' }}
-      >
-        {/* Mobile logo */}
+      {/* Right Panel */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 lg:px-12 overflow-y-auto bg-stone-50">
         <div className="flex items-center gap-2 mb-8 lg:hidden">
-          <div
-            className="flex items-center justify-center rounded-xl"
-            style={{ width: 36, height: 36, background: TEAL }}
-          >
+          <div className="flex items-center justify-center rounded-xl bg-primary w-9 h-9">
             <Activity size={18} className="text-white" />
           </div>
-          <span className="font-bold text-[#0F172A]" style={{ fontSize: 16 }}>
-            Health Telematix
-          </span>
+          <span className="font-bold text-foreground text-base">Health Telematix</span>
         </div>
 
-        <div className="w-full" style={{ maxWidth: 530 }}>
-          {/* ── Stepper ── */}
+        <div className="w-full max-w-[530px]">
+          {/* Stepper */}
           <div className="flex items-center mb-8">
             {STEPS.map((step, idx) => {
               const isActive = idx === 2;
@@ -487,40 +361,33 @@ export function ReviewEHR(): React.JSX.Element {
               const isLast = idx === STEPS.length - 1;
               return (
                 <React.Fragment key={step.label}>
-                  <div className="flex flex-col items-center" style={{ minWidth: 0 }}>
+                  <div className="flex flex-col items-center min-w-0">
                     <div
-                      className="flex items-center justify-center rounded-full flex-shrink-0"
-                      style={{
-                        width: 32,
-                        height: 32,
-                        background: isCompleted || isActive ? TEAL : '#E2E8F0',
-                        border: `2px solid ${isCompleted || isActive ? TEAL : '#CBD5E1'}`,
-                      }}
+                      className={`flex items-center justify-center rounded-full flex-shrink-0 w-8 h-8 border-2 transition-all ${
+                        isCompleted || isActive ? 'bg-primary border-primary' : 'bg-muted border-border'
+                      }`}
                     >
                       {isCompleted ? (
-                        <Check size={14} color="#fff" strokeWidth={3} />
+                        <Check size={14} className="text-primary-foreground" strokeWidth={3} />
                       ) : (
-                        <span className="text-xs font-bold" style={{ color: isActive ? '#fff' : '#94A3B8' }}>
+                        <span
+                          className={`text-xs font-bold ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+                        >
                           {idx + 1}
                         </span>
                       )}
                     </div>
                     <span
-                      className="text-xs font-medium mt-1.5 text-center"
-                      style={{ color: isActive || isCompleted ? TEAL : '#94A3B8', maxWidth: 90, lineHeight: '1.3' }}
+                      className={`text-xs font-medium mt-1.5 text-center max-w-[90px] leading-snug ${
+                        isActive || isCompleted ? 'text-primary' : 'text-muted-foreground'
+                      }`}
                     >
                       {step.label}
                     </span>
                   </div>
                   {!isLast && (
                     <div
-                      className="flex-1 mx-2"
-                      style={{
-                        height: 2,
-                        background: isCompleted ? TEAL : '#E2E8F0',
-                        marginBottom: 22,
-                        borderRadius: 2,
-                      }}
+                      className={`flex-1 mx-2 h-0.5 mb-[22px] rounded-sm ${isCompleted ? 'bg-primary' : 'bg-border'}`}
                     />
                   )}
                 </React.Fragment>
@@ -528,19 +395,15 @@ export function ReviewEHR(): React.JSX.Element {
             })}
           </div>
 
-          {/* ── Heading ── */}
           <div className="mb-6">
-            <h2 className="font-bold text-[#0F172A] mb-1" style={{ fontSize: 22, letterSpacing: '-0.02em' }}>
-              Review EHR Details
-            </h2>
-            <p className="text-sm" style={{ color: '#64748B' }}>
+            <h2 className="font-bold text-foreground text-[22px] tracking-tight mb-1">Review EHR Details</h2>
+            <p className="text-sm text-muted-foreground">
               {hasEHR
                 ? 'Your EHR system has been connected by the Super Admin. Review the details below.'
                 : 'No EHR system has been set up yet. You can add it now or skip and configure it later.'}
             </p>
           </div>
 
-          {/* ── Scenario views ── */}
           {hasEHR ? <EHRSetupView /> : <EHREmptyView />}
         </div>
       </div>
