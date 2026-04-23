@@ -1,18 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Shield,
-  Users,
-  Activity,
-  ArrowRight,
-  Check,
-  Plus,
-  UserPlus,
-  AlertCircle,
-  Stethoscope,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
+import { Activity, ArrowRight, Check, Plus, UserPlus, AlertCircle, Stethoscope, Pencil, Trash2 } from 'lucide-react';
+import { OnboardingLeftPanel } from '../onboarding-left-panel';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -274,6 +263,12 @@ function EditPhysicianModal({
   );
 }
 
+const ROLE_SHORT: Record<UserRole, string> = {
+  Physician: 'Physician',
+  Nurse: 'Nurse',
+  'Digital Health Navigator': 'DHN',
+};
+
 export function ReviewUsers(): React.JSX.Element {
   const navigate = useNavigate();
   const [users, setUsers] = useState<ClinicUser[]>(INITIAL_USERS);
@@ -303,87 +298,10 @@ export function ReviewUsers(): React.JSX.Element {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-[45%] flex-col relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900">
-        <div className="absolute -top-24 -right-24 rounded-full opacity-10 w-80 h-80 bg-white" />
-        <div className="absolute -bottom-16 -left-16 rounded-full opacity-10 w-72 h-72 bg-white" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 bg-white w-[500px] h-[500px]" />
-
-        <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center rounded-xl bg-white/20 shadow-md w-11 h-11">
-              <Activity size={22} className="text-white" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-lg leading-tight">Health Telematix</p>
-              <p className="text-white/60 text-xs font-medium">Clinic Admin Portal</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col flex-1 justify-center">
-            <div className="pb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold bg-white/15 text-white">
-                <span className="inline-block rounded-full w-1.5 h-1.5 bg-emerald-400" />
-                HIPAA Compliant Platform
-              </div>
-              <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
-                Intelligent Care Management for
-                <br />
-                <span className="text-teal-200">Modern Clinics</span>
-              </h1>
-              <p className="text-white/70 text-base leading-relaxed max-w-xs">
-                Streamline patient care, manage your team, and monitor health outcomes — all in one secure platform.
-              </p>
-            </div>
-
-            <div className="space-y-4 mb-10">
-              {[
-                {
-                  icon: <Shield size={16} />,
-                  title: 'HIPAA Compliant & Secure',
-                  desc: 'End-to-end encryption for all patient data',
-                },
-                {
-                  icon: <Users size={16} />,
-                  title: 'Multi-Role Care Teams',
-                  desc: 'Physicians, Nurses & Digital Health Navigators',
-                },
-                {
-                  icon: <Activity size={16} />,
-                  title: 'Real-Time Patient Monitoring',
-                  desc: 'RPM & APCM program tracking with live vitals',
-                },
-              ].map((f) => (
-                <div key={f.title} className="flex items-start gap-3">
-                  <div className="flex items-center justify-center rounded-lg flex-shrink-0 mt-0.5 w-8 h-8 bg-white/15 text-white">
-                    {f.icon}
-                  </div>
-                  <div>
-                    <p className="text-white text-sm font-semibold">{f.title}</p>
-                    <p className="text-white/60 text-xs mt-0.5">{f.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 rounded-2xl p-5 bg-white/10 border border-white/15">
-              {[
-                { value: '2,400+', label: 'Active Patients' },
-                { value: '98.5%', label: 'Uptime SLA' },
-                { value: 'SOC 2', label: 'Certified' },
-              ].map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="text-white font-bold text-xl">{s.value}</p>
-                  <p className="text-white/60 text-xs mt-0.5">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <OnboardingLeftPanel />
 
       {/* Right Panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 lg:px-10 overflow-y-auto bg-stone-50">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 lg:px-20 overflow-y-auto bg-stone-50">
         <div className="flex items-center gap-2 mb-8 lg:hidden">
           <div className="flex items-center justify-center rounded-xl bg-primary w-9 h-9">
             <Activity size={18} className="text-white" />
@@ -393,7 +311,7 @@ export function ReviewUsers(): React.JSX.Element {
 
         <div className="w-full max-w-3xl">
           {/* Stepper */}
-          <div className="flex items-center mb-8">
+          <div className="flex items-center mb-10">
             {STEPS.map((step, idx) => {
               const isActive = idx === 1;
               const isCompleted = idx === 0;
@@ -437,7 +355,12 @@ export function ReviewUsers(): React.JSX.Element {
           {/* Header row */}
           <div className="flex items-start justify-between gap-4 mb-6">
             <div>
-              <h2 className="font-bold text-foreground text-[22px] tracking-tight mb-1">Review Assigned Users</h2>
+              <div className="flex items-center gap-2.5 mb-1">
+                <h2 className="font-bold text-foreground text-[22px] tracking-tight">Review Assigned Users</h2>
+                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold px-2.5 py-0.5">
+                  {users.length}
+                </span>
+              </div>
               <p className="text-sm text-muted-foreground">
                 Users below were assigned to your clinic by the Super Admin.
               </p>
@@ -446,123 +369,144 @@ export function ReviewUsers(): React.JSX.Element {
               type="button"
               variant="outline"
               onClick={() => setShowAdd(true)}
-              className="flex-shrink-0 flex items-center gap-2 h-10 px-4 text-sm font-semibold whitespace-nowrap"
+              className="flex-shrink-0 gap-1.5 h-10 px-4 text-sm font-semibold whitespace-nowrap"
             >
               <Plus size={15} />
-              Add New Physician
+              Add Physician
             </Button>
           </div>
 
-          {/* Table */}
-          <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    User
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Contact
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Role
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Specialty / NPI
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Added By
-                  </TableHead>
-                  <TableHead className="w-20" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => {
-                  const isClinicAdminUser = user.addedBy === 'Clinic Admin';
-                  return (
-                    <TableRow key={user.id} className="bg-card">
-                      <TableCell>
-                        <p className="text-sm font-semibold text-foreground truncate max-w-[160px]">
-                          {user.firstName} {user.lastName}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-xs text-muted-foreground truncate max-w-[140px]" data-phi>
-                          {user.email}
-                        </p>
-                        <p className="text-xs text-muted-foreground" data-phi>
-                          {user.phone}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={ROLE_BADGE_CLASS[user.role]}>
-                          {user.role === 'Physician' && <Stethoscope size={10} className="mr-1" />}
-                          {user.role === 'Physician' ? 'Physician' : user.role === 'Nurse' ? 'Nurse' : 'DHN'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {user.specialty ? (
-                          <p className="text-xs font-medium text-foreground truncate max-w-[120px]">{user.specialty}</p>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                        {user.npi && <p className="text-xs text-muted-foreground">NPI: {user.npi}</p>}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`text-xs font-medium ${isClinicAdminUser ? 'text-primary' : 'text-muted-foreground'}`}
-                        >
-                          {user.addedBy}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {isClinicAdminUser && (
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => setEditUser(user)}
-                              aria-label="Edit physician"
-                            >
-                              <Pencil size={13} />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => handleRemove(user.id)}
-                              aria-label="Remove physician"
-                              className="hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 size={13} />
-                            </Button>
+          {/* Table — scrollable after ~6 rows */}
+          <div className="rounded-2xl border border-border shadow-sm overflow-hidden bg-card">
+            <div className="overflow-y-auto max-h-[420px]">
+              <Table>
+                <TableHeader className="sticky top-0 z-10 bg-muted/90 backdrop-blur-sm shadow-[0_1px_0_0_hsl(var(--border))]">
+                  <TableRow className="hover:bg-transparent border-0">
+                    <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      User
+                    </TableHead>
+                    <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Contact
+                    </TableHead>
+                    <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Role
+                    </TableHead>
+                    <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Specialty / NPI
+                    </TableHead>
+                    <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Added By
+                    </TableHead>
+                    <TableHead className="w-16" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user, idx) => {
+                    const isClinicAdminUser = user.addedBy === 'Clinic Admin';
+                    return (
+                      <TableRow
+                        key={user.id}
+                        className={`border-border transition-colors hover:bg-muted/30 ${idx % 2 === 0 ? 'bg-card' : 'bg-muted/10'}`}
+                      >
+                        <TableCell className="py-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex items-center justify-center rounded-full flex-shrink-0 w-8 h-8 bg-primary/10 text-primary text-xs font-bold">
+                              {user.firstName.charAt(user.firstName.lastIndexOf(' ') + 1)}
+                              {user.lastName.charAt(0)}
+                            </div>
+                            <p className="text-sm font-semibold text-foreground">
+                              {user.firstName} {user.lastName}
+                            </p>
                           </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <p className="text-xs text-muted-foreground truncate max-w-[150px]" data-phi>
+                            {user.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5" data-phi>
+                            {user.phone}
+                          </p>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <Badge variant="outline" className={ROLE_BADGE_CLASS[user.role]}>
+                            {user.role === 'Physician' && <Stethoscope size={10} className="mr-1" />}
+                            {ROLE_SHORT[user.role]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          {user.specialty ? (
+                            <>
+                              <p className="text-xs font-medium text-foreground">{user.specialty}</p>
+                              {user.npi && <p className="text-xs text-muted-foreground mt-0.5">NPI: {user.npi}</p>}
+                            </>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <span
+                            className={`text-xs font-medium ${isClinicAdminUser ? 'text-primary' : 'text-muted-foreground'}`}
+                          >
+                            {user.addedBy}
+                          </span>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          {isClinicAdminUser && (
+                            <div className="flex items-center justify-end gap-0.5">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => setEditUser(user)}
+                                aria-label="Edit physician"
+                                className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+                              >
+                                <Pencil size={13} />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => handleRemove(user.id)}
+                                aria-label="Remove physician"
+                                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              >
+                                <Trash2 size={13} />
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Table footer — user count */}
+            <div className="px-4 py-2.5 border-t border-border bg-muted/30">
+              <p className="text-xs text-muted-foreground">
+                {users.length} {users.length === 1 ? 'user' : 'users'} assigned to your clinic
+              </p>
+            </div>
           </div>
 
           {/* Support notice */}
-          <Alert className="mt-4 bg-sky-50 border-sky-200">
-            <AlertCircle size={15} className="text-sky-600" />
-            <AlertDescription className="text-sky-700 text-xs leading-relaxed">
+          <Alert className="mt-4 bg-primary/5 border-primary/20">
+            <AlertCircle size={15} className="text-primary" />
+            <AlertDescription className="text-foreground text-xs leading-relaxed">
               <span className="font-semibold">Need to make changes?</span> Contact Super Admin Support for any
               modification requests to assigned users.
             </AlertDescription>
             <AlertAction>
-              <Button type="button" size="xs" className="bg-sky-600 hover:bg-sky-700 text-white border-0 text-xs">
+              <Button type="button" size="xs" className="text-xs">
                 Contact Super Admin
               </Button>
             </AlertAction>
           </Alert>
 
           {/* Navigation */}
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 flex justify-end gap-3">
             <Button
               type="button"
               variant="outline"
@@ -575,7 +519,7 @@ export function ReviewUsers(): React.JSX.Element {
               type="button"
               disabled={isSubmitting}
               onClick={handleContinue}
-              className="flex-1 h-11 text-sm font-semibold"
+              className="h-11 px-6 text-sm font-semibold"
             >
               {isSubmitting ? (
                 <>

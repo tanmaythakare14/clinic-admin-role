@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Users, Activity, ArrowRight } from 'lucide-react';
+import { Activity, ArrowRight } from 'lucide-react';
+import { OnboardingLeftPanel } from '../onboarding-left-panel';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -20,87 +21,10 @@ export function SignIn(): React.JSX.Element {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-[45%] flex-col relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900">
-        <div className="absolute -top-24 -right-24 rounded-full opacity-10 w-80 h-80 bg-white" />
-        <div className="absolute -bottom-16 -left-16 rounded-full opacity-10 w-72 h-72 bg-white" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 bg-white w-[500px] h-[500px]" />
-
-        <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center rounded-xl bg-white/20 shadow-md w-11 h-11">
-              <Activity size={22} className="text-white" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-lg leading-tight">Health Telematix</p>
-              <p className="text-white/60 text-xs font-medium">Clinic Admin Portal</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col flex-1 justify-center">
-            <div className="pb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold bg-white/15 text-white">
-                <span className="inline-block rounded-full w-1.5 h-1.5 bg-emerald-400" />
-                HIPAA Compliant Platform
-              </div>
-              <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
-                Intelligent Care Management for
-                <br />
-                <span className="text-teal-200">Modern Clinics</span>
-              </h1>
-              <p className="text-white/70 text-base leading-relaxed max-w-xl">
-                Streamline patient care, manage your team, and monitor health outcomes all in one secure platform.
-              </p>
-            </div>
-
-            <div className="space-y-8 mb-14">
-              {[
-                {
-                  icon: <Shield size={16} />,
-                  title: 'HIPAA Compliant & Secure',
-                  desc: 'End-to-end encryption for all patient data',
-                },
-                {
-                  icon: <Users size={16} />,
-                  title: 'Multi-Role Care Teams',
-                  desc: 'Physicians, Nurses & Digital Health Navigators',
-                },
-                {
-                  icon: <Activity size={16} />,
-                  title: 'Real-Time Patient Monitoring',
-                  desc: 'RPM & APCM program tracking with live vitals',
-                },
-              ].map((f) => (
-                <div key={f.title} className="flex items-start gap-3">
-                  <div className="flex items-center justify-center rounded-lg flex-shrink-0 mt-0.5 w-8 h-8 bg-white/15 text-white">
-                    {f.icon}
-                  </div>
-                  <div>
-                    <p className="text-white text-sm font-semibold">{f.title}</p>
-                    <p className="text-white/60 text-xs mt-0.5">{f.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 rounded-2xl p-5 bg-white/10 border border-white/15">
-              {[
-                { value: '2,400+', label: 'Active Patients' },
-                { value: '98.5%', label: 'Uptime SLA' },
-                { value: 'SOC 2', label: 'Certified' },
-              ].map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="text-white font-bold text-xl">{s.value}</p>
-                  <p className="text-white/60 text-xs mt-0.5">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <OnboardingLeftPanel />
 
       {/* Right Panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 lg:px-12 overflow-y-auto bg-stone-50">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 lg:px-20 overflow-y-auto bg-stone-50">
         <div className="flex items-center gap-2 mb-8 lg:hidden">
           <div className="flex items-center justify-center rounded-xl bg-primary w-9 h-9">
             <Activity size={18} className="text-white" />
@@ -108,7 +32,7 @@ export function SignIn(): React.JSX.Element {
           <span className="font-bold text-foreground text-base">Health Telematix</span>
         </div>
 
-        <div className="w-full max-w-[530px]">
+        <div className="w-full max-w-[640px]">
           <div className="mb-7">
             <h2 className="font-bold text-foreground text-[22px] tracking-tight mb-2">
               You've Been Invited to Join a Clinic on Health Telematix
