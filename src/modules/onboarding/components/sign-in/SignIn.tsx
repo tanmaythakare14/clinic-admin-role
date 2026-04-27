@@ -32,7 +32,7 @@ export function SignIn(): React.JSX.Element {
           <span className="font-bold text-foreground text-base">Health Telematix</span>
         </div>
 
-        <div className="w-full max-w-[640px]">
+        <div className="w-full max-w-3xl">
           <div className="mb-7">
             <h2 className="font-bold text-foreground text-[22px] tracking-tight mb-2">
               You've Been Invited to Join a Clinic on Health Telematix
