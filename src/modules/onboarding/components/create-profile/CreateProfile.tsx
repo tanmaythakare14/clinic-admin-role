@@ -20,11 +20,15 @@ const STEPS = [
 ];
 
 const createProfileSchema = z.object({
-  phone: z
-    .string()
-    .min(10, 'Phone number must be at least 10 digits')
-    .regex(/^[+\d\s\-().]+$/, 'Enter a valid phone number'),
+  phone: z.string().regex(/^\(\d{3}\) \d{3}-\d{4}$/, 'Enter a valid 10-digit phone number'),
 });
+
+function formatPhoneNumber(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
 
 type CreateProfileFormValues = z.infer<typeof createProfileSchema>;
 
@@ -73,7 +77,7 @@ export function CreateProfile(): React.JSX.Element {
           <span className="font-bold text-foreground text-base">Health Telematix</span>
         </div>
 
-        <div className="w-full max-w-[640px]">
+        <div className="w-full max-w-[768px]">
           {/* Stepper */}
           <div className="flex items-center mb-8">
             {STEPS.map((step, idx) => {
@@ -99,7 +103,7 @@ export function CreateProfile(): React.JSX.Element {
                       )}
                     </div>
                     <span
-                      className={`text-xs font-medium mt-1.5 text-center max-w-[90px] leading-snug ${
+                      className={`text-xs font-medium mt-1.5 text-center whitespace-nowrap leading-snug ${
                         isActive ? 'text-primary' : isCompleted ? 'text-primary' : 'text-muted-foreground'
                       }`}
                     >
@@ -164,34 +168,35 @@ export function CreateProfile(): React.JSX.Element {
                 </div>
               </div>
 
-              {/* Admin Name — disabled */}
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-name">Admin Name</Label>
-                <Input
-                  id="admin-name"
-                  value={MOCK_ADMIN.name}
-                  disabled
-                  className="h-11 text-sm bg-muted cursor-not-allowed"
-                  readOnly
-                />
-                <p className="text-xs text-muted-foreground">
-                  Name is pre-filled from your invitation and cannot be changed.
-                </p>
-              </div>
+              {/* Admin Name + Email — disabled, side by side */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="admin-name">Admin Name</Label>
+                  <Input
+                    id="admin-name"
+                    value={MOCK_ADMIN.name}
+                    disabled
+                    className="h-11 text-sm bg-muted cursor-not-allowed"
+                    readOnly
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Name is pre-filled from your invitation and cannot be changed.
+                  </p>
+                </div>
 
-              {/* Email — disabled */}
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-email">Email Address</Label>
-                <Input
-                  id="admin-email"
-                  value={MOCK_ADMIN.email}
-                  disabled
-                  className="h-11 text-sm bg-muted cursor-not-allowed"
-                  readOnly
-                />
-                <p className="text-xs text-muted-foreground">
-                  Email is linked to your invitation and cannot be changed.
-                </p>
+                <div className="space-y-1.5">
+                  <Label htmlFor="admin-email">Email Address</Label>
+                  <Input
+                    id="admin-email"
+                    value={MOCK_ADMIN.email}
+                    disabled
+                    className="h-11 text-sm bg-muted cursor-not-allowed"
+                    readOnly
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Email is linked to your invitation and cannot be changed.
+                  </p>
+                </div>
               </div>
 
               {/* Phone — editable */}
@@ -202,13 +207,22 @@ export function CreateProfile(): React.JSX.Element {
                   <FormItem>
                     <FormLabel className="text-sm font-semibold text-foreground">Phone Number</FormLabel>
                     <FormControl>
-                      <Input
-                        type="tel"
-                        placeholder="+1 (555) 000-0000"
-                        autoComplete="tel"
-                        className="h-11 text-sm"
-                        {...field}
-                      />
+                      <div className="flex h-11 rounded-lg border border-input bg-background overflow-hidden transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                        <div className="flex items-center gap-1.5 px-3 bg-muted border-r border-border text-sm text-foreground font-medium select-none shrink-0">
+                          🇺🇸 <span className="text-muted-foreground">+1</span>
+                        </div>
+                        <input
+                          type="tel"
+                          placeholder="(555) 000-0000"
+                          autoComplete="tel"
+                          className="flex-1 px-3 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
+                          value={field.value}
+                          onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

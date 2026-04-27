@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, ArrowRight, Check, Plus, UserPlus, AlertCircle, Stethoscope, Pencil, Trash2 } from 'lucide-react';
+import { Activity, ArrowRight, Check, Plus, UserPlus, AlertCircle, Pencil, Trash2 } from 'lucide-react';
 import { OnboardingLeftPanel } from '../onboarding-left-panel';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import {
   Dialog,
@@ -16,7 +15,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Alert, AlertDescription, AlertAction } from '@/components/ui/alert';
 import { CREATE_PROFILE_PATH, REVIEW_USERS_PATH, REVIEW_EHR_PATH } from '../../constants';
 
 const STEPS = [
@@ -82,12 +80,6 @@ const INITIAL_USERS: ClinicUser[] = [
   },
 ];
 
-const ROLE_BADGE_CLASS: Record<UserRole, string> = {
-  Physician: 'bg-teal-50 text-teal-700 border-0 h-auto py-0.5',
-  Nurse: 'bg-violet-50 text-violet-700 border-0 h-auto py-0.5',
-  'Digital Health Navigator': 'bg-orange-50 text-orange-700 border-0 h-auto py-0.5',
-};
-
 type PhysicianForm = {
   firstName: string;
   lastName: string;
@@ -107,7 +99,7 @@ function PhysicianFormFields({
 }): React.JSX.Element {
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-5">
         {(['firstName', 'lastName'] as const).map((key) => (
           <div key={key} className="space-y-1.5">
             <Label htmlFor={key}>{key === 'firstName' ? 'First Name' : 'Last Name'}</Label>
@@ -120,27 +112,27 @@ function PhysicianFormFields({
             />
           </div>
         ))}
+        {(
+          [
+            ['email', 'Email Address', 'email', 'physician@clinic.com', true],
+            ['phone', 'Phone Number', 'tel', '+1 (555) 000-0000', true],
+            ['specialty', 'Specialty', 'text', 'e.g. Cardiology (optional)', false],
+            ['npi', 'NPI Number', 'text', '10-digit NPI', true],
+          ] as const
+        ).map(([key, label, type, placeholder, required]) => (
+          <div key={key} className="space-y-1.5">
+            <Label htmlFor={key}>{label}</Label>
+            <Input
+              id={key}
+              type={type}
+              placeholder={placeholder}
+              required={required}
+              value={form[key]}
+              onChange={(e) => onChange(key as keyof PhysicianForm, e.target.value)}
+            />
+          </div>
+        ))}
       </div>
-      {(
-        [
-          ['email', 'Email Address', 'email', 'physician@clinic.com', true],
-          ['phone', 'Phone Number', 'tel', '+1 (555) 000-0000', true],
-          ['specialty', 'Specialty', 'text', 'e.g. Cardiology (optional)', false],
-          ['npi', 'NPI Number', 'text', '10-digit NPI', true],
-        ] as const
-      ).map(([key, label, type, placeholder, required]) => (
-        <div key={key} className="space-y-1.5">
-          <Label htmlFor={key}>{label}</Label>
-          <Input
-            id={key}
-            type={type}
-            placeholder={placeholder}
-            required={required}
-            value={form[key]}
-            onChange={(e) => onChange(key as keyof PhysicianForm, e.target.value)}
-          />
-        </div>
-      ))}
     </>
   );
 }
@@ -179,19 +171,19 @@ function AddPhysicianModal({
         if (!open) onClose();
       }}
     >
-      <DialogContent showCloseButton={false} className="sm:max-w-[480px]">
+      <DialogContent showCloseButton={false} className="sm:max-w-[680px]">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center rounded-xl bg-primary/10 w-10 h-10 flex-shrink-0">
               <UserPlus size={18} className="text-primary" />
             </div>
-            <div>
+            <div className="flex flex-col gap-1">
               <DialogTitle>Add New Physician</DialogTitle>
               <DialogDescription>Physician will be added to your clinic</DialogDescription>
             </div>
           </div>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 pt-1">
           <PhysicianFormFields form={form} onChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))} />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
@@ -237,19 +229,19 @@ function EditPhysicianModal({
         if (!open) onClose();
       }}
     >
-      <DialogContent showCloseButton={false} className="sm:max-w-[480px]">
+      <DialogContent showCloseButton={false} className="sm:max-w-[680px]">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center rounded-xl bg-primary/10 w-10 h-10 flex-shrink-0">
               <Pencil size={16} className="text-primary" />
             </div>
-            <div>
+            <div className="flex flex-col gap-1">
               <DialogTitle>Edit Physician</DialogTitle>
               <DialogDescription>Update physician details for your clinic</DialogDescription>
             </div>
           </div>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 pt-1">
           <PhysicianFormFields form={form} onChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))} />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
@@ -263,12 +255,6 @@ function EditPhysicianModal({
   );
 }
 
-const ROLE_SHORT: Record<UserRole, string> = {
-  Physician: 'Physician',
-  Nurse: 'Nurse',
-  'Digital Health Navigator': 'DHN',
-};
-
 export function ReviewUsers(): React.JSX.Element {
   const navigate = useNavigate();
   const [users, setUsers] = useState<ClinicUser[]>(INITIAL_USERS);
@@ -277,7 +263,7 @@ export function ReviewUsers(): React.JSX.Element {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleAdd(user: ClinicUser): void {
-    setUsers((prev) => [...prev, user]);
+    setUsers((prev) => [user, ...prev]);
   }
 
   function handleSave(updated: ClinicUser): void {
@@ -309,7 +295,7 @@ export function ReviewUsers(): React.JSX.Element {
           <span className="font-bold text-foreground text-base">Health Telematix</span>
         </div>
 
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-5xl">
           {/* Stepper */}
           <div className="flex items-center mb-10">
             {STEPS.map((step, idx) => {
@@ -335,7 +321,7 @@ export function ReviewUsers(): React.JSX.Element {
                       )}
                     </div>
                     <span
-                      className={`text-xs font-medium mt-1.5 text-center max-w-[90px] leading-snug ${
+                      className={`text-xs font-medium mt-1.5 text-center whitespace-nowrap leading-snug ${
                         isActive || isCompleted ? 'text-primary' : 'text-muted-foreground'
                       }`}
                     >
@@ -386,7 +372,10 @@ export function ReviewUsers(): React.JSX.Element {
                       User
                     </TableHead>
                     <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Contact
+                      Email Address
+                    </TableHead>
+                    <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Phone Number
                     </TableHead>
                     <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Role
@@ -420,18 +409,17 @@ export function ReviewUsers(): React.JSX.Element {
                           </div>
                         </TableCell>
                         <TableCell className="py-4">
-                          <p className="text-xs text-muted-foreground truncate max-w-[150px]" data-phi>
+                          <p className="text-xs text-muted-foreground truncate max-w-[180px]" data-phi>
                             {user.email}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-0.5" data-phi>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <p className="text-xs text-muted-foreground" data-phi>
                             {user.phone}
                           </p>
                         </TableCell>
                         <TableCell className="py-4">
-                          <Badge variant="outline" className={ROLE_BADGE_CLASS[user.role]}>
-                            {user.role === 'Physician' && <Stethoscope size={10} className="mr-1" />}
-                            {ROLE_SHORT[user.role]}
-                          </Badge>
+                          <span className="text-sm text-foreground">{user.role}</span>
                         </TableCell>
                         <TableCell className="py-4">
                           {user.specialty ? (
@@ -492,18 +480,16 @@ export function ReviewUsers(): React.JSX.Element {
           </div>
 
           {/* Support notice */}
-          <Alert className="mt-4 bg-primary/5 border-primary/20">
-            <AlertCircle size={15} className="text-primary" />
-            <AlertDescription className="text-foreground text-xs leading-relaxed">
+          <div className="mt-4 flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+            <AlertCircle size={15} className="text-primary shrink-0" />
+            <p className="flex-1 text-xs text-foreground leading-relaxed">
               <span className="font-semibold">Need to make changes?</span> Contact Super Admin Support for any
               modification requests to assigned users.
-            </AlertDescription>
-            <AlertAction>
-              <Button type="button" size="xs" className="text-xs">
-                Contact Super Admin
-              </Button>
-            </AlertAction>
-          </Alert>
+            </p>
+            <Button type="button" variant="outline" size="xs" className="shrink-0 text-xs whitespace-nowrap">
+              Contact Super Admin
+            </Button>
+          </div>
 
           {/* Navigation */}
           <div className="mt-6 flex justify-end gap-3">

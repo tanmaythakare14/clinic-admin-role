@@ -33,7 +33,7 @@ export function OnboardingLeftPanel(): React.JSX.Element {
       <div className="absolute -bottom-16 -left-16 rounded-full opacity-10 w-72 h-72 bg-white" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 bg-white w-[500px] h-[500px]" />
 
-      <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
+      <div className="relative z-10 flex flex-col h-full px-10 py-10">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center rounded-xl bg-white/20 shadow-md w-11 h-11">
@@ -58,7 +58,7 @@ export function OnboardingLeftPanel(): React.JSX.Element {
               <span className="text-teal-200">Modern Clinics</span>
             </h1>
             <p className="text-white/70 text-base leading-relaxed max-w-xs">
-              Streamline patient care, manage your team, and monitor health outcomes — all in one secure platform.
+              Streamline patient care, manage your team, and monitor health outcomes all in one secure platform.
             </p>
           </div>
 
@@ -78,7 +78,7 @@ export function OnboardingLeftPanel(): React.JSX.Element {
           </div>
 
           {/* Stats bar */}
-          <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5 bg-white/10 border border-white/15 flex-wrap">
+          <div className="flex items-center gap-10 rounded-2xl px-3 py-2.5 bg-white/10 border border-white/15 flex-wrap justify-center">
             {STATS.map((s, i) => (
               <React.Fragment key={s.label}>
                 {i > 0 && <span className="text-white/40 text-[10px]">•</span>}

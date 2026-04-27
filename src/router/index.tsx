@@ -1,5 +1,4 @@
-import React from 'react';
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import {
   SignIn,
   EmailVerification,
@@ -14,16 +13,8 @@ import {
   REVIEW_USERS_PATH,
   REVIEW_EHR_PATH,
 } from '@/modules/onboarding';
-import { DemoGuide } from '@/components/demo-guide/DemoGuide';
-
-function RootLayout(): React.JSX.Element {
-  return (
-    <>
-      <Outlet />
-      <DemoGuide />
-    </>
-  );
-}
+import { PatientList, PatientDetail, PATIENT_BASE_PATH, PATIENT_DETAIL_PATH } from '@/modules/patient';
+import { RootLayout } from '@/components/layout/RootLayout';
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +27,9 @@ export const router = createBrowserRouter([
       { path: CREATE_PROFILE_PATH, element: <CreateProfile /> },
       { path: REVIEW_USERS_PATH, element: <ReviewUsers /> },
       { path: REVIEW_EHR_PATH, element: <ReviewEHR /> },
+      { path: '/dashboard', element: <Navigate to={PATIENT_BASE_PATH} replace /> },
+      { path: PATIENT_BASE_PATH, element: <PatientList /> },
+      { path: PATIENT_DETAIL_PATH, element: <PatientDetail /> },
     ],
   },
 ]);
