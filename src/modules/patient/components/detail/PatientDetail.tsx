@@ -20,9 +20,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { cn } from '@/lib/utils';
 import type { PatientAlert, PatientDetailData, PatientListItem, CareTeamRole } from '@/modules/patient/@types';
 import { toast } from 'sonner';
-import { PATIENT_BASE_PATH, PATIENT_LIST_STORAGE_KEY, PATIENT_DETAIL_STORAGE_KEY } from '@/modules/patient/constants';
+import {
+  PATIENT_BASE_PATH,
+  PATIENT_LIST_STORAGE_KEY,
+  PATIENT_DETAIL_STORAGE_KEY,
+  PATIENT_EDIT_PATH,
+} from '@/modules/patient/constants';
 import { secureLocalStorage } from '@/utils/secureStorage';
-import { EnrollPatient } from '@/modules/patient/components/enrollment/EnrollPatient';
 import { VitalsTab, type DeviceScenario } from './tabs/VitalsTab';
 import { MedicationTab } from './tabs/MedicationTab';
 import { ProgramsDevicesTab } from './tabs/ProgramsDevicesTab';
@@ -454,15 +458,11 @@ export function PatientDetail(): React.JSX.Element {
   const navigate = useNavigate();
   const [navCollapsed, setNavCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
-  const [showEdit, setShowEdit] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const deviceScenario = (searchParams.get('devices') ?? 'all') as DeviceScenario;
 
   // Load full detail (written at enrollment) first; fall back to list-item summary
-  // refreshKey forces re-read after edit
-  void refreshKey;
   const allDetail =
     secureLocalStorage.getItemObject<Record<string, PatientDetailData>>(PATIENT_DETAIL_STORAGE_KEY) ?? {};
   const allPatients = secureLocalStorage.getItemObject<PatientListItem[]>(PATIENT_LIST_STORAGE_KEY) ?? [];
@@ -592,7 +592,7 @@ export function PatientDetail(): React.JSX.Element {
                     variant="outline"
                     size="sm"
                     className="h-8 px-3.5 gap-1.5 text-[12px] font-medium inline-flex items-center"
-                    onClick={() => setShowEdit(true)}
+                    onClick={() => navigate(PATIENT_EDIT_PATH.replace(':id', patient.id))}
                   >
                     <Pencil size={13} className="shrink-0" />
                     Edit
@@ -655,19 +655,6 @@ export function PatientDetail(): React.JSX.Element {
           </div>
         </main>
       </div>
-
-      {/* Edit Patient Modal */}
-      <EnrollPatient
-        open={showEdit}
-        onOpenChange={setShowEdit}
-        onEnrolled={() => {}}
-        editPatient={patient}
-        onUpdated={() => {
-          setShowEdit(false);
-          setRefreshKey((k) => k + 1);
-          toast.success('Patient updated successfully.');
-        }}
-      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>

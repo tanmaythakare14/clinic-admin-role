@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ClipboardList, Bot, User, Clock, CheckCircle2, CircleDot, AlertCircle, Timer } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Check,
+  ChevronDown,
+  ClipboardList,
+  Bot,
+  Filter,
+  User,
+  Clock,
+  CheckCircle2,
+  CircleDot,
+  AlertCircle,
+  Timer,
+} from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -335,6 +346,19 @@ const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
 export function TasksTab(): React.JSX.Element {
   const [activeFilter, setActiveFilter] = useState<TaskFilter>('current');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleMouseDown(e: MouseEvent) {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
+        setStatusDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, []);
 
   const baseTasks = activeFilter === 'current' ? CURRENT_TASKS : COMPLETED_TASKS;
   const tasks =
@@ -342,6 +366,7 @@ export function TasksTab(): React.JSX.Element {
       ? baseTasks.filter((t) => t.status === statusFilter)
       : baseTasks;
   const emptyLabel = activeFilter === 'current' ? 'current tasks' : 'completed tasks';
+  const activeStatusLabel = STATUS_FILTERS.find((f) => f.id === statusFilter)?.label ?? 'Status';
 
   return (
     <div className="space-y-4">
@@ -357,18 +382,50 @@ export function TasksTab(): React.JSX.Element {
         <div className="flex items-center gap-3 ml-auto">
           {/* Status filter dropdown — only for Current Tasks */}
           {activeFilter === 'current' && (
-            <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val as StatusFilter)}>
-              <SelectTrigger className="h-8 w-[150px] text-[12px] border-slate-200 bg-white gap-1.5">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_FILTERS.map((f) => (
-                  <SelectItem key={f.id} value={f.id} className="text-[12px]">
-                    {f.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div ref={statusDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setStatusDropdownOpen((o) => !o)}
+                className={cn(
+                  'h-9 px-3.5 flex items-center gap-2 rounded-lg border text-[13px] font-medium transition-colors',
+                  statusFilter !== 'all'
+                    ? 'border-primary/40 bg-primary/5 text-primary'
+                    : 'border-slate-200 bg-white text-foreground hover:bg-slate-50'
+                )}
+              >
+                <Filter size={13} />
+                {statusFilter === 'all' ? 'Status' : activeStatusLabel}
+                <ChevronDown
+                  size={13}
+                  className={cn(
+                    'text-muted-foreground transition-transform duration-150',
+                    statusDropdownOpen && 'rotate-180'
+                  )}
+                />
+              </button>
+
+              {statusDropdownOpen && (
+                <div className="absolute right-0 top-[calc(100%+6px)] z-50 w-44 bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.12)] py-1.5 overflow-hidden">
+                  {STATUS_FILTERS.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter(f.id);
+                        setStatusDropdownOpen(false);
+                      }}
+                      className={cn(
+                        'w-full flex items-center justify-between px-3.5 py-2.5 text-[13px] font-medium transition-colors text-left',
+                        statusFilter === f.id ? 'bg-primary/5 text-primary' : 'text-foreground hover:bg-slate-50'
+                      )}
+                    >
+                      {f.label}
+                      {statusFilter === f.id && <Check size={13} className="text-primary shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Sub-tab pill toggle */}
@@ -385,6 +442,7 @@ export function TasksTab(): React.JSX.Element {
                 onClick={() => {
                   setActiveFilter(tab.id);
                   setStatusFilter('all');
+                  setStatusDropdownOpen(false);
                 }}
                 className={cn(
                   'px-4 py-1.5 rounded-md text-[12px] font-medium transition-all duration-150',

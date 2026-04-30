@@ -280,20 +280,23 @@ function PrefixDropdown({ value, onChange }: { value: string; onChange: (v: stri
   }, []);
 
   return (
-    <div ref={containerRef} className="relative flex items-center shrink-0 border-r border-border bg-muted">
+    <div
+      ref={containerRef}
+      className="relative flex items-center shrink-0 w-[60px] self-stretch border-r border-border bg-muted rounded-l-md"
+    >
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 pl-3 pr-2 h-full text-[12.5px] font-medium text-foreground hover:bg-slate-100 transition-colors"
+        className="flex items-center gap-1 pl-2 pr-1 h-full w-full text-[12.5px] font-medium text-foreground hover:bg-slate-100 rounded-l-md transition-colors"
       >
-        <span className="min-w-[28px] text-center">{value}</span>
+        <span className="flex-1 text-center">{value}</span>
         <ChevronDown
-          size={11}
-          className={cn('text-muted-foreground transition-transform duration-150', open && 'rotate-180')}
+          size={10}
+          className={cn('text-muted-foreground transition-transform duration-150 shrink-0', open && 'rotate-180')}
         />
       </button>
       {open && (
-        <div className="absolute top-[calc(100%+6px)] left-0 z-50 min-w-[110px] bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)] py-1.5">
+        <div className="absolute top-[calc(100%+6px)] left-0 z-50 w-[60px] bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)] py-1.5">
           {PREFIX_OPTIONS.map((item) => (
             <button
               key={item}
@@ -303,7 +306,7 @@ function PrefixDropdown({ value, onChange }: { value: string; onChange: (v: stri
                 setOpen(false);
               }}
               className={cn(
-                'w-full text-left px-3 py-2 text-[13px] transition-colors duration-100',
+                'w-full text-center px-2 py-2 text-[12.5px] transition-colors duration-100',
                 value === item ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
               )}
             >

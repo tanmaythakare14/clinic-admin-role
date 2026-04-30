@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -114,9 +115,11 @@ function SearchableSelect({
 }: SearchableSelectProps): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Close on outside click
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -128,10 +131,27 @@ function SearchableSelect({
     return () => document.removeEventListener('mousedown', onMouseDown);
   }, []);
 
+  // Keep dropdown position in sync while open
+  useEffect(() => {
+    if (!open) return;
+    function update() {
+      if (containerRef.current) setTriggerRect(containerRef.current.getBoundingClientRect());
+    }
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [open]);
+
   const filtered = searchable ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase())) : options;
 
   function handleOpen() {
     if (disabled) return;
+    if (!open && containerRef.current) {
+      setTriggerRect(containerRef.current.getBoundingClientRect());
+    }
     setOpen((prev) => !prev);
     if (!open) setTimeout(() => inputRef.current?.focus(), 0);
   }
@@ -141,6 +161,54 @@ function SearchableSelect({
     setOpen(false);
     setQuery('');
   }
+
+  const dropdownPanel =
+    open && !disabled && triggerRect
+      ? ReactDOM.createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: triggerRect.bottom + 6,
+              left: triggerRect.left,
+              width: triggerRect.width,
+              zIndex: 9999,
+            }}
+            className="bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)]"
+          >
+            <ul
+              className={cn(
+                'py-1.5',
+                options.length > 6 && 'max-h-[220px] overflow-y-auto',
+                '[&::-webkit-scrollbar]:w-[5px]',
+                '[&::-webkit-scrollbar-track]:bg-transparent',
+                '[&::-webkit-scrollbar-thumb]:rounded-full',
+                '[&::-webkit-scrollbar-thumb]:bg-slate-200',
+                'hover:[&::-webkit-scrollbar-thumb]:bg-slate-300'
+              )}
+            >
+              {filtered.length === 0 ? (
+                <li className="px-4 py-3 text-[13px] text-muted-foreground text-center">No matches found</li>
+              ) : (
+                filtered.map((opt) => (
+                  <li key={opt}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(opt)}
+                      className={cn(
+                        'w-full text-left px-4 py-2 text-[13px] transition-colors duration-100',
+                        value === opt ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
+                      )}
+                    >
+                      {opt}
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>,
+          document.body
+        )
+      : null;
 
   return (
     <div ref={containerRef} className="relative">
@@ -174,6 +242,9 @@ function SearchableSelect({
             onClick={(e) => {
               if (!disabled) {
                 e.stopPropagation();
+                if (!open && containerRef.current) {
+                  setTriggerRect(containerRef.current.getBoundingClientRect());
+                }
                 setOpen(true);
               }
             }}
@@ -188,42 +259,7 @@ function SearchableSelect({
         </span>
       </div>
 
-      {/* Dropdown panel */}
-      {open && !disabled && (
-        <div className="absolute z-50 w-full mt-1.5 bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)]">
-          <ul
-            className={cn(
-              'py-1.5',
-              options.length > 6 && 'max-h-[220px] overflow-y-auto',
-              // styled scrollbar
-              '[&::-webkit-scrollbar]:w-[5px]',
-              '[&::-webkit-scrollbar-track]:bg-transparent',
-              '[&::-webkit-scrollbar-thumb]:rounded-full',
-              '[&::-webkit-scrollbar-thumb]:bg-slate-200',
-              'hover:[&::-webkit-scrollbar-thumb]:bg-slate-300'
-            )}
-          >
-            {filtered.length === 0 ? (
-              <li className="px-4 py-3 text-[13px] text-muted-foreground text-center">No matches found</li>
-            ) : (
-              filtered.map((opt) => (
-                <li key={opt}>
-                  <button
-                    type="button"
-                    onClick={() => handleSelect(opt)}
-                    className={cn(
-                      'w-full text-left px-4 py-2 text-[13px] transition-colors duration-100',
-                      value === opt ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
-                    )}
-                  >
-                    {opt}
-                  </button>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-      )}
+      {dropdownPanel}
     </div>
   );
 }
@@ -232,6 +268,7 @@ function SearchableSelect({
 
 function PrefixDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }): React.JSX.Element {
   const [open, setOpen] = useState(false);
+  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -244,42 +281,81 @@ function PrefixDropdown({ value, onChange }: { value: string; onChange: (v: stri
     return () => document.removeEventListener('mousedown', onMouseDown);
   }, []);
 
+  // Keep dropdown position in sync while open
+  useEffect(() => {
+    if (!open) return;
+    function update() {
+      if (containerRef.current) setTriggerRect(containerRef.current.getBoundingClientRect());
+    }
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [open]);
+
+  function handleToggle() {
+    if (!open && containerRef.current) {
+      setTriggerRect(containerRef.current.getBoundingClientRect());
+    }
+    setOpen((o) => !o);
+  }
+
   function handleSelect(v: string) {
     onChange(v);
     setOpen(false);
   }
 
+  const dropdownPanel =
+    open && triggerRect
+      ? ReactDOM.createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: triggerRect.bottom + 6,
+              left: triggerRect.left,
+              width: 60,
+              zIndex: 9999,
+            }}
+            className="bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)] py-1.5"
+          >
+            {PREFIX_OPTIONS.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => handleSelect(item)}
+                className={cn(
+                  'w-full text-center px-2 py-2 text-[12.5px] transition-colors duration-100',
+                  value === item ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
+                )}
+              >
+                {item}
+              </button>
+            ))}
+          </div>,
+          document.body
+        )
+      : null;
+
   return (
-    <div ref={containerRef} className="relative flex items-center shrink-0 border-r border-border bg-muted">
+    <div
+      ref={containerRef}
+      className="relative flex items-center shrink-0 w-[60px] self-stretch border-r border-border bg-muted rounded-l-md"
+    >
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 pl-3 pr-2 h-full text-[12.5px] font-medium text-foreground hover:bg-slate-100 transition-colors"
+        onClick={handleToggle}
+        className="flex items-center gap-1 pl-2 pr-1 h-full w-full text-[12.5px] font-medium text-foreground hover:bg-slate-100 rounded-l-md transition-colors"
       >
-        <span className="min-w-[28px] text-center">{value}</span>
+        <span className="flex-1 text-center">{value}</span>
         <ChevronDown
-          size={11}
-          className={cn('text-muted-foreground transition-transform duration-150', open && 'rotate-180')}
+          size={10}
+          className={cn('text-muted-foreground transition-transform duration-150 shrink-0', open && 'rotate-180')}
         />
       </button>
 
-      {open && (
-        <div className="absolute top-[calc(100%+6px)] left-0 z-50 min-w-[110px] bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)] py-1.5">
-          {PREFIX_OPTIONS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => handleSelect(item)}
-              className={cn(
-                'w-full text-left px-3 py-2 text-[13px] transition-colors duration-100',
-                value === item ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
-              )}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-      )}
+      {dropdownPanel}
     </div>
   );
 }
@@ -535,8 +611,9 @@ export function AddUserDialog({
                           <FormLabel className="text-[12px]">Phone Number</FormLabel>
                           <FormControl>
                             <div className="flex h-9 rounded-md border border-input bg-background overflow-hidden transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
-                              <div className="flex items-center gap-1.5 px-3 bg-muted border-r border-border text-sm font-medium select-none shrink-0">
-                                🇺🇸 <span className="text-muted-foreground text-[12px]">+1</span>
+                              <div className="inline-flex items-center justify-center gap-1 px-3 bg-muted border-r border-border select-none shrink-0 h-full">
+                                <span className="text-[13px] leading-none">🇺🇸</span>
+                                <span className="text-[12px] font-medium text-muted-foreground leading-none">+1</span>
                               </div>
                               <input
                                 type="tel"

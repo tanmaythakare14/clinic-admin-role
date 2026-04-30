@@ -29,16 +29,15 @@ import { LeftNav } from '@/components/layout/LeftNav';
 import { TopBar } from '@/components/layout/TopBar';
 import { cn } from '@/lib/utils';
 import { secureLocalStorage } from '@/utils/secureStorage';
-import type { PatientDetailData, PatientListItem, ProgramType } from '@/modules/patient/@types';
+import type { PatientListItem, ProgramType } from '@/modules/patient/@types';
 import {
   PATIENT_BASE_PATH,
   PATIENT_ENROLL_PATH,
+  PATIENT_EDIT_PATH,
   PATIENT_LIST_STORAGE_KEY,
-  PATIENT_DETAIL_STORAGE_KEY,
   PATIENT_SEED_KEY,
   DUMMY_PATIENTS,
 } from '@/modules/patient/constants';
-import { EnrollPatient } from '@/modules/patient/components/enrollment';
 import type { EHRPrefillData } from '@/modules/patient/components/enrollment/EHRSelector';
 import { EHRPatientSearchModal } from '@/modules/patient/components/enrollment/EHRPatientSearchModal';
 import type { EHRInfo } from '@/modules/patient/components/enrollment/EHRPatientSearchModal';
@@ -144,7 +143,6 @@ export function PatientList(): React.JSX.Element {
   const [programFilter, setProgramFilter] = useState<'All' | ProgramType>('All');
   const [programDropdownOpen, setProgramDropdownOpen] = useState(false);
   const [enrollDropdownOpen, setEnrollDropdownOpen] = useState(false);
-  const [editPatientData, setEditPatientData] = useState<PatientDetailData | null>(null);
   const [deactivateTarget, setDeactivateTarget] = useState<{ id: string; name: string } | null>(null);
   const [ehrSearchModal, setEhrSearchModal] = useState<{ open: boolean; ehr: EHRInfo | null }>({
     open: false,
@@ -182,12 +180,6 @@ export function PatientList(): React.JSX.Element {
     navigate(PATIENT_ENROLL_PATH, { state: { ehrPrefill: prefill } });
   }
 
-  function handlePatientUpdated(updated: PatientListItem) {
-    setPatients((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-    setEditPatientData(null);
-    toast.success('Patient updated successfully.');
-  }
-
   function confirmDeactivate() {
     if (!deactivateTarget) return;
     const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
@@ -200,32 +192,9 @@ export function PatientList(): React.JSX.Element {
     toast.success(`${deactivateTarget.name} has been deactivated.`);
   }
 
-  function openEdit(row: PatientListItem, e: React.MouseEvent) {
-    e.stopPropagation();
-    const allDetail =
-      secureLocalStorage.getItemObject<Record<string, PatientDetailData>>(PATIENT_DETAIL_STORAGE_KEY) ?? {};
-    const detail = allDetail[row.id] ?? {
-      id: row.id,
-      mrn: row.mrn,
-      fullName: row.fullName,
-      dateOfBirth: row.dateOfBirth,
-      gender: row.gender,
-      email: row.email,
-      phone: row.phone,
-      address: '',
-      pcpName: row.pcpName,
-      programs: row.programs,
-      insurance: { planName: '', planType: '', memberId: '', groupNumber: '' },
-      diagnoses: [],
-      emergencyContacts: [],
-      careTeam: [],
-      alerts: [],
-    };
-    setEditPatientData(detail);
-  }
-
   const columns = useMemo<ColumnDef<PatientListItem>[]>(() => {
     const isDeactivatedTab = statusFilter === 'Deactivated';
+    const isPendingTab = statusFilter === 'Pending';
     return [
       {
         accessorKey: 'fullName',
@@ -329,40 +298,47 @@ export function PatientList(): React.JSX.Element {
             } satisfies ColumnDef<PatientListItem>,
           ]
         : []),
-      {
-        id: 'actions',
-        header: 'Actions',
-        cell: ({ row }) => (
-          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            {!isDeactivatedTab && (
-              <>
-                <button
-                  type="button"
-                  onClick={(e) => openEdit(row.original, e)}
-                  className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
-                  title="Edit patient"
-                >
-                  <Pencil size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDeactivateTarget({ id: row.original.id, name: row.original.fullName });
-                  }}
-                  className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-amber-600 hover:bg-amber-50 transition-colors"
-                  title="Deactivate patient"
-                >
-                  <PowerOff size={13} />
-                </button>
-              </>
-            )}
-            {isDeactivatedTab && <span className="text-[11px] text-muted-foreground italic">Deactivated</span>}
-          </div>
-        ),
-      },
+      ...(isPendingTab
+        ? []
+        : [
+            {
+              id: 'actions',
+              header: 'Actions',
+              cell: ({ row }: { row: { original: PatientListItem } }) => (
+                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  {!isDeactivatedTab && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(PATIENT_EDIT_PATH.replace(':id', row.original.id));
+                        }}
+                        className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+                        title="Edit patient"
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeactivateTarget({ id: row.original.id, name: row.original.fullName });
+                        }}
+                        className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                        title="Deactivate patient"
+                      >
+                        <PowerOff size={13} />
+                      </button>
+                    </>
+                  )}
+                  {isDeactivatedTab && <span className="text-[11px] text-muted-foreground italic">Deactivated</span>}
+                </div>
+              ),
+            } satisfies ColumnDef<PatientListItem>,
+          ]),
     ];
-  }, [programFilter, statusFilter]);
+  }, [navigate, programFilter, statusFilter]);
 
   const filteredData = useMemo(
     () =>
@@ -700,19 +676,6 @@ export function PatientList(): React.JSX.Element {
           handleEHRSelect(prefill);
         }}
       />
-
-      {/* Edit patient */}
-      {editPatientData && (
-        <EnrollPatient
-          open={!!editPatientData}
-          onOpenChange={(o) => {
-            if (!o) setEditPatientData(null);
-          }}
-          onEnrolled={() => {}}
-          editPatient={editPatientData}
-          onUpdated={handlePatientUpdated}
-        />
-      )}
 
       {/* Deactivate confirmation */}
       <ConfirmDialog

@@ -1,6 +1,7 @@
 export const PATIENT_BASE_PATH = '/patients';
 export const PATIENT_DETAIL_PATH = '/patients/:id';
 export const PATIENT_ENROLL_PATH = '/patients/enroll';
+export const PATIENT_EDIT_PATH = '/patients/:id/edit';
 
 export const PATIENT_LIST_STORAGE_KEY = 'htx_clinic_patient_list';
 export const PATIENT_DETAIL_STORAGE_KEY = 'htx_clinic_patient_detail';

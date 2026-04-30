@@ -18,9 +18,11 @@ import {
   PatientList,
   PatientDetail,
   EnrollPatientPage,
+  EditPatientPage,
   PATIENT_BASE_PATH,
   PATIENT_DETAIL_PATH,
   PATIENT_ENROLL_PATH,
+  PATIENT_EDIT_PATH,
 } from '@/modules/patient';
 import { UserList, UserDetail, USER_BASE_PATH, USER_DETAIL_PATH } from '@/modules/user-management';
 import { Settings, SETTINGS_PATH } from '@/modules/settings';
@@ -40,6 +42,7 @@ export const router = createBrowserRouter([
       { path: DASHBOARD_PATH, element: <Dashboard /> },
       { path: PATIENT_BASE_PATH, element: <PatientList /> },
       { path: PATIENT_ENROLL_PATH, element: <EnrollPatientPage /> },
+      { path: PATIENT_EDIT_PATH, element: <EditPatientPage /> },
       { path: PATIENT_DETAIL_PATH, element: <PatientDetail /> },
       { path: USER_BASE_PATH, element: <UserList /> },
       { path: USER_DETAIL_PATH, element: <UserDetail /> },
