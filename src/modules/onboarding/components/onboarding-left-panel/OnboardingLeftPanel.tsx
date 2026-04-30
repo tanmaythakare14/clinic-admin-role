@@ -19,12 +19,6 @@ const FEATURES = [
   },
 ];
 
-const STATS = [
-  { value: '2,400+', label: 'Active Patients' },
-  { value: '98.5%', label: 'Uptime SLA' },
-  { value: 'SOC 2', label: 'Certified' },
-];
-
 export function OnboardingLeftPanel(): React.JSX.Element {
   return (
     <div className="hidden lg:flex lg:w-[30%] flex-col relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900">
@@ -47,12 +41,12 @@ export function OnboardingLeftPanel(): React.JSX.Element {
 
         <div className="flex flex-col flex-1 justify-center">
           {/* Headline */}
-          <div className="pb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold bg-white/15 text-white">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5 text-xs font-semibold bg-white/15 text-white">
               <span className="inline-block rounded-full w-1.5 h-1.5 bg-emerald-400" />
               HIPAA Compliant Platform
             </div>
-            <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
+            <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-3">
               Intelligent Care Management for
               <br />
               <span className="text-teal-200">Modern Clinics</span>
@@ -63,9 +57,9 @@ export function OnboardingLeftPanel(): React.JSX.Element {
           </div>
 
           {/* Feature highlights */}
-          <div className="space-y-8 mb-10">
+          <div className="space-y-5 w-full">
             {FEATURES.map((f) => (
-              <div key={f.title} className="flex items-start gap-3">
+              <div key={f.title} className="flex items-start gap-3 text-left">
                 <div className="flex items-center justify-center rounded-lg flex-shrink-0 mt-0.5 w-8 h-8 bg-white/15 text-white">
                   {f.icon}
                 </div>
@@ -74,19 +68,6 @@ export function OnboardingLeftPanel(): React.JSX.Element {
                   <p className="text-white/60 text-xs mt-0.5">{f.desc}</p>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Stats bar */}
-          <div className="flex items-center gap-10 rounded-2xl px-3 py-2.5 bg-white/10 border border-white/15 flex-wrap justify-center">
-            {STATS.map((s, i) => (
-              <React.Fragment key={s.label}>
-                {i > 0 && <span className="text-white/40 text-[10px]">•</span>}
-                <span className="text-[10px]">
-                  <span className="text-white font-bold">{s.value}</span>
-                  <span className="text-white/60"> {s.label}</span>
-                </span>
-              </React.Fragment>
             ))}
           </div>
         </div>

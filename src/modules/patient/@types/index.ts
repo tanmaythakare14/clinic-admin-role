@@ -27,6 +27,8 @@ export interface PatientListItem {
   email: string;
   pcpName: string;
   programs: ProgramType[];
+  status: 'Active' | 'Pending' | 'Deactivated';
+  deactivatedOn?: string;
 }
 
 export interface PatientAlert {
@@ -65,6 +67,55 @@ export interface CareTeamMember {
   email: string;
 }
 
+// ─── Enrollment Form Types ────────────────────────────────────────────────────
+
+export interface DiagnosisFormItem {
+  conditionName: string;
+  icdCode: string;
+  severity: DiagnosisSeverity;
+}
+
+export interface EnrollmentStep1Values {
+  firstName: string;
+  lastName: string;
+  mrn: string;
+  dateOfBirth: string;
+  gender: string;
+  email: string;
+  phone: string;
+  pcpName: string;
+  zipCode: string;
+  country: string;
+  state: string;
+  city: string;
+  addressLine1: string;
+  addressLine2?: string;
+  address?: string;
+}
+
+export interface EnrollmentStep2Values {
+  insurancePlanName: string;
+  planType: string;
+  memberId: string;
+  groupNumber: string;
+  hasSecondaryInsurance: boolean;
+  secondaryInsurance?: string;
+  secondaryMemberId?: string;
+}
+
+export interface EmergencyContactStepValues {
+  contacts: EmergencyContact[];
+}
+
+export interface EnrollmentStep3Values {
+  careTeamPhysician: string;
+  careTeamNurse: string;
+  careTeamDHN: string;
+  diagnoses: DiagnosisFormItem[];
+  programRPM: boolean;
+  programACPM: boolean;
+}
+
 export interface PatientDetailData {
   id: string;
   mrn: string;
@@ -78,7 +129,7 @@ export interface PatientDetailData {
   programs: ProgramType[];
   insurance: InsuranceInfo;
   diagnoses: Diagnosis[];
-  emergencyContact: EmergencyContact;
+  emergencyContacts: EmergencyContact[];
   careTeam: CareTeamMember[];
   alerts: PatientAlert[];
 }

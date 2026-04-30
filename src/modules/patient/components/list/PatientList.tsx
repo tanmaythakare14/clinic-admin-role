@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,15 +7,41 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table';
-import { ChevronLeft, ChevronRight, Search, UserPlus } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  Filter,
+  Link2,
+  Pencil,
+  PowerOff,
+  Search,
+  UserPlus,
+} from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ConfirmDialog } from '@/components/confirm-dialog/ConfirmDialog';
 import { LeftNav } from '@/components/layout/LeftNav';
 import { TopBar } from '@/components/layout/TopBar';
 import { cn } from '@/lib/utils';
-import type { PatientListItem, ProgramType } from '@/modules/patient/@types';
-import { PATIENT_BASE_PATH } from '@/modules/patient/constants';
+import { secureLocalStorage } from '@/utils/secureStorage';
+import type { PatientDetailData, PatientListItem, ProgramType } from '@/modules/patient/@types';
+import {
+  PATIENT_BASE_PATH,
+  PATIENT_ENROLL_PATH,
+  PATIENT_LIST_STORAGE_KEY,
+  PATIENT_DETAIL_STORAGE_KEY,
+  PATIENT_SEED_KEY,
+  DUMMY_PATIENTS,
+} from '@/modules/patient/constants';
+import { EnrollPatient } from '@/modules/patient/components/enrollment';
+import type { EHRPrefillData } from '@/modules/patient/components/enrollment/EHRSelector';
+import { EHRPatientSearchModal } from '@/modules/patient/components/enrollment/EHRPatientSearchModal';
+import type { EHRInfo } from '@/modules/patient/components/enrollment/EHRPatientSearchModal';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -42,175 +68,165 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-// ─── Mock Data ───────────────────────────────────────────────────────────────
+// ─── Empty State Illustrations ───────────────────────────────────────────────
 
-const MOCK_PATIENTS: PatientListItem[] = [
-  {
-    id: 'p-001',
-    mrn: 'MRN-10042',
-    fullName: 'Emma Rodriguez',
-    dateOfBirth: 'Jan 12, 1968',
-    gender: 'Female',
-    phone: '+1 (312) 555-0198',
-    email: 'emma.rodriguez@sunrisecare.com',
-    pcpName: 'Dr. Michael Torres',
-    programs: ['APCM', 'RPM'],
-  },
-  {
-    id: 'p-002',
-    mrn: 'MRN-10043',
-    fullName: 'Michael Chen',
-    dateOfBirth: 'Mar 05, 1975',
-    gender: 'Male',
-    phone: '+1 (415) 555-0122',
-    email: 'michael.chen@sunrisecare.com',
-    pcpName: 'Dr. Sarah Kim',
-    programs: ['RPM'],
-  },
-  {
-    id: 'p-003',
-    mrn: 'MRN-10044',
-    fullName: 'Linda Foster',
-    dateOfBirth: 'Sep 28, 1960',
-    gender: 'Female',
-    phone: '+1 (718) 555-0077',
-    email: 'linda.foster@sunrisecare.com',
-    pcpName: 'Dr. James Patel',
-    programs: ['APCM'],
-  },
-  {
-    id: 'p-004',
-    mrn: 'MRN-10045',
-    fullName: 'David Kim',
-    dateOfBirth: 'Jul 14, 1982',
-    gender: 'Male',
-    phone: '+1 (213) 555-0155',
-    email: 'david.kim@sunrisecare.com',
-    pcpName: 'Dr. Laura Chen',
-    programs: ['RPM'],
-  },
-  {
-    id: 'p-005',
-    mrn: 'MRN-10046',
-    fullName: 'Patricia Lee',
-    dateOfBirth: 'Feb 03, 1955',
-    gender: 'Female',
-    phone: '+1 (602) 555-0199',
-    email: 'patricia.lee@sunrisecare.com',
-    pcpName: 'Dr. Robert Singh',
-    programs: ['APCM', 'RPM'],
-  },
-  {
-    id: 'p-006',
-    mrn: 'MRN-10047',
-    fullName: 'James Wilson',
-    dateOfBirth: 'Nov 19, 1970',
-    gender: 'Male',
-    phone: '+1 (512) 555-0133',
-    email: 'james.wilson@sunrisecare.com',
-    pcpName: 'Dr. Michael Torres',
-    programs: ['APCM'],
-  },
-  {
-    id: 'p-007',
-    mrn: 'MRN-10048',
-    fullName: 'Susan Martinez',
-    dateOfBirth: 'Apr 08, 1965',
-    gender: 'Female',
-    phone: '+1 (404) 555-0166',
-    email: 'susan.martinez@sunrisecare.com',
-    pcpName: 'Dr. Sarah Kim',
-    programs: [],
-  },
-  {
-    id: 'p-008',
-    mrn: 'MRN-10049',
-    fullName: 'Robert Thompson',
-    dateOfBirth: 'Dec 22, 1958',
-    gender: 'Male',
-    phone: '+1 (206) 555-0177',
-    email: 'robert.thompson@sunrisecare.com',
-    pcpName: 'Dr. James Patel',
-    programs: ['RPM'],
-  },
-  {
-    id: 'p-009',
-    mrn: 'MRN-10050',
-    fullName: 'Jennifer Davis',
-    dateOfBirth: 'Aug 30, 1979',
-    gender: 'Female',
-    phone: '+1 (303) 555-0144',
-    email: 'jennifer.davis@sunrisecare.com',
-    pcpName: 'Dr. Laura Chen',
-    programs: ['APCM'],
-  },
-  {
-    id: 'p-010',
-    mrn: 'MRN-10051',
-    fullName: 'William Johnson',
-    dateOfBirth: 'May 17, 1963',
-    gender: 'Male',
-    phone: '+1 (215) 555-0188',
-    email: 'william.johnson@sunrisecare.com',
-    pcpName: 'Dr. Robert Singh',
-    programs: ['APCM', 'RPM'],
-  },
-  {
-    id: 'p-011',
-    mrn: 'MRN-10052',
-    fullName: 'Mary Anderson',
-    dateOfBirth: 'Jan 09, 1971',
-    gender: 'Female',
-    phone: '+1 (713) 555-0111',
-    email: 'mary.anderson@sunrisecare.com',
-    pcpName: 'Dr. Michael Torres',
-    programs: ['RPM'],
-  },
-  {
-    id: 'p-012',
-    mrn: 'MRN-10053',
-    fullName: 'Christopher Brown',
-    dateOfBirth: 'Oct 25, 1967',
-    gender: 'Male',
-    phone: '+1 (702) 555-0122',
-    email: 'christopher.brown@sunrisecare.com',
-    pcpName: 'Dr. Sarah Kim',
-    programs: ['APCM'],
-  },
-];
-
-// ─── Empty State ─────────────────────────────────────────────────────────────
-
-function PatientEmptyState(): React.JSX.Element {
+function NoPatientsSVG(): React.JSX.Element {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center">
-      <img src="/no-data.svg" alt="No patients enrolled" className="w-64 h-64 mb-8 select-none" draggable={false} />
-      <h2 className="text-[20px] font-bold text-foreground tracking-tight mb-2">No Patients Enrolled Yet</h2>
-      <p className="text-sm text-muted-foreground max-w-[360px] leading-relaxed mb-7">
-        Your patient list is empty. Start by enrolling your first patient to begin tracking their care programs, vitals,
-        and health records.
-      </p>
-      <Button className="h-10 px-6 text-sm font-semibold gap-2 shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
-        <UserPlus size={15} />
-        Enroll New Patient
-      </Button>
-    </div>
+    <svg
+      width="148"
+      height="148"
+      viewBox="0 0 148 148"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      {/* Soft teal background circle */}
+      <circle cx="74" cy="74" r="74" fill="#F0FDFA" />
+      {/* Dashed outer ring */}
+      <circle cx="74" cy="74" r="58" stroke="#CCFBF1" strokeWidth="1.5" strokeDasharray="5 4" />
+
+      {/* Clipboard body */}
+      <rect x="38" y="38" width="72" height="84" rx="12" fill="white" stroke="#99F6E4" strokeWidth="1.5" />
+
+      {/* Clipboard top clip */}
+      <rect x="56" y="32" width="36" height="13" rx="6.5" fill="#CCFBF1" stroke="#5EEAD4" strokeWidth="1.5" />
+
+      {/* Patient silhouette — head */}
+      <circle cx="74" cy="72" r="11" fill="#CCFBF1" stroke="#2DD4BF" strokeWidth="1.5" />
+
+      {/* Patient silhouette — body/shoulders arc */}
+      <path
+        d="M52 104c0-12.15 9.85-22 22-22s22 9.85 22 22"
+        fill="#E0FDF4"
+        stroke="#2DD4BF"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+
+      {/* ECG / heartbeat line */}
+      <rect x="38" y="108" width="72" height="14" rx="0" fill="#F0FDFA" />
+      <polyline
+        points="42,115 52,115 56,107 60,123 64,111 68,119 72,115 90,115 94,107 98,123 102,115 110,115"
+        stroke="#2DD4BF"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+
+      {/* Plus badge — bottom right */}
+      <circle cx="104" cy="104" r="16" fill="#0D9488" />
+      <line x1="104" y1="97" x2="104" y2="111" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="97" y1="104" x2="111" y2="104" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function NoResultsSVG(): React.JSX.Element {
+  return (
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="40" cy="40" r="40" fill="#F8FAFC" />
+      <circle cx="36" cy="35" r="14" stroke="#CBD5E1" strokeWidth="2.2" />
+      <line x1="46.5" y1="46.5" x2="58" y2="58" stroke="#CBD5E1" strokeWidth="2.8" strokeLinecap="round" />
+      <line x1="31" y1="30" x2="41" y2="40" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
+      <line x1="41" y1="30" x2="31" y2="40" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   );
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function PatientList(): React.JSX.Element {
-  const [searchParams] = useSearchParams();
-  const isEmpty = searchParams.get('scenario') === 'empty';
   const navigate = useNavigate();
-
   const [navCollapsed, setNavCollapsed] = useState(false);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'Active' | 'Pending' | 'Deactivated'>('Active');
   const [programFilter, setProgramFilter] = useState<'All' | ProgramType>('All');
+  const [programDropdownOpen, setProgramDropdownOpen] = useState(false);
+  const [enrollDropdownOpen, setEnrollDropdownOpen] = useState(false);
+  const [editPatientData, setEditPatientData] = useState<PatientDetailData | null>(null);
+  const [deactivateTarget, setDeactivateTarget] = useState<{ id: string; name: string } | null>(null);
+  const [ehrSearchModal, setEhrSearchModal] = useState<{ open: boolean; ehr: EHRInfo | null }>({
+    open: false,
+    ehr: null,
+  });
+  const enrollDropdownRef = useRef<HTMLDivElement>(null);
+  const programDropdownRef = useRef<HTMLDivElement>(null);
 
-  const columns = useMemo<ColumnDef<PatientListItem>[]>(
-    () => [
+  // Seed dummy data once on first load
+  const [patients, setPatients] = useState<PatientListItem[]>(() => {
+    const alreadySeeded = secureLocalStorage.getItemObject<boolean>(PATIENT_SEED_KEY);
+    if (!alreadySeeded) {
+      secureLocalStorage.setItemObject(PATIENT_LIST_STORAGE_KEY, DUMMY_PATIENTS);
+      secureLocalStorage.setItemObject(PATIENT_SEED_KEY, true);
+      return DUMMY_PATIENTS;
+    }
+    return secureLocalStorage.getItemObject<PatientListItem[]>(PATIENT_LIST_STORAGE_KEY) ?? [];
+  });
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleMouseDown(e: MouseEvent) {
+      if (enrollDropdownRef.current && !enrollDropdownRef.current.contains(e.target as Node)) {
+        setEnrollDropdownOpen(false);
+      }
+      if (programDropdownRef.current && !programDropdownRef.current.contains(e.target as Node)) {
+        setProgramDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, []);
+
+  function handleEHRSelect(prefill: EHRPrefillData) {
+    navigate(PATIENT_ENROLL_PATH, { state: { ehrPrefill: prefill } });
+  }
+
+  function handlePatientUpdated(updated: PatientListItem) {
+    setPatients((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    setEditPatientData(null);
+    toast.success('Patient updated successfully.');
+  }
+
+  function confirmDeactivate() {
+    if (!deactivateTarget) return;
+    const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+    const updated = patients.map((p) =>
+      p.id === deactivateTarget.id ? { ...p, status: 'Deactivated' as const, deactivatedOn: today } : p
+    );
+    setPatients(updated);
+    secureLocalStorage.setItemObject(PATIENT_LIST_STORAGE_KEY, updated);
+    setDeactivateTarget(null);
+    toast.success(`${deactivateTarget.name} has been deactivated.`);
+  }
+
+  function openEdit(row: PatientListItem, e: React.MouseEvent) {
+    e.stopPropagation();
+    const allDetail =
+      secureLocalStorage.getItemObject<Record<string, PatientDetailData>>(PATIENT_DETAIL_STORAGE_KEY) ?? {};
+    const detail = allDetail[row.id] ?? {
+      id: row.id,
+      mrn: row.mrn,
+      fullName: row.fullName,
+      dateOfBirth: row.dateOfBirth,
+      gender: row.gender,
+      email: row.email,
+      phone: row.phone,
+      address: '',
+      pcpName: row.pcpName,
+      programs: row.programs,
+      insurance: { planName: '', planType: '', memberId: '', groupNumber: '' },
+      diagnoses: [],
+      emergencyContacts: [],
+      careTeam: [],
+      alerts: [],
+    };
+    setEditPatientData(detail);
+  }
+
+  const columns = useMemo<ColumnDef<PatientListItem>[]>(() => {
+    const isDeactivatedTab = statusFilter === 'Deactivated';
+    return [
       {
         accessorKey: 'fullName',
         header: 'Patient Name',
@@ -219,13 +235,20 @@ export function PatientList(): React.JSX.Element {
             <div
               className={cn(
                 'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
-                getAvatarColor(row.original.fullName)
+                isDeactivatedTab ? 'bg-slate-100 text-slate-400' : getAvatarColor(row.original.fullName)
               )}
             >
               {getInitials(row.original.fullName)}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-[13.5px] font-semibold text-foreground leading-tight">{row.original.fullName}</span>
+              <span
+                className={cn(
+                  'text-[13.5px] font-semibold leading-tight',
+                  isDeactivatedTab ? 'text-muted-foreground' : 'text-foreground'
+                )}
+              >
+                {row.original.fullName}
+              </span>
               <span className="text-[11.5px] text-muted-foreground leading-tight" data-phi="true">
                 {row.original.mrn}
               </span>
@@ -295,20 +318,63 @@ export function PatientList(): React.JSX.Element {
         header: 'PCP Name',
         cell: ({ row }) => <span className="text-[13px] text-foreground">{row.original.pcpName}</span>,
       },
-    ],
-    [programFilter]
-  );
+      ...(isDeactivatedTab
+        ? [
+            {
+              id: 'deactivatedOn',
+              header: 'Deactivated On',
+              cell: ({ row }: { row: { original: PatientListItem } }) => (
+                <span className="text-[13px] text-muted-foreground">{row.original.deactivatedOn ?? '—'}</span>
+              ),
+            } satisfies ColumnDef<PatientListItem>,
+          ]
+        : []),
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+            {!isDeactivatedTab && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => openEdit(row.original, e)}
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+                  title="Edit patient"
+                >
+                  <Pencil size={13} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeactivateTarget({ id: row.original.id, name: row.original.fullName });
+                  }}
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                  title="Deactivate patient"
+                >
+                  <PowerOff size={13} />
+                </button>
+              </>
+            )}
+            {isDeactivatedTab && <span className="text-[11px] text-muted-foreground italic">Deactivated</span>}
+          </div>
+        ),
+      },
+    ];
+  }, [programFilter, statusFilter]);
 
   const filteredData = useMemo(
     () =>
-      MOCK_PATIENTS.filter((p) => {
+      patients.filter((p) => {
         const q = search.toLowerCase();
         const matchesSearch = !q || p.fullName.toLowerCase().includes(q) || p.mrn.toLowerCase().includes(q);
         if (!matchesSearch) return false;
-        if (programFilter === 'All') return true;
-        return p.programs.includes(programFilter);
+        if (p.status !== statusFilter) return false;
+        if (programFilter !== 'All' && !p.programs.includes(programFilter)) return false;
+        return true;
       }),
-    [search, programFilter]
+    [search, statusFilter, programFilter, patients]
   );
 
   const table = useReactTable({
@@ -337,56 +403,166 @@ export function PatientList(): React.JSX.Element {
       >
         <TopBar title="Patient Management" subtitle="Manage and monitor all enrolled patients" />
 
-        {isEmpty ? (
-          <main className="flex-1 flex flex-col">
-            <PatientEmptyState />
-          </main>
-        ) : (
-          <main className="flex-1 p-7 flex flex-col gap-5">
-            {/* Controls row */}
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                {/* Program filter pills */}
-                <div className="flex items-center bg-slate-100 rounded-full p-1 gap-0.5">
-                  {(['All', 'APCM', 'RPM'] as const).map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setProgramFilter(type)}
-                      className={cn(
-                        'px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-150',
-                        programFilter === type
-                          ? 'bg-white text-primary shadow-sm font-semibold'
-                          : 'text-muted-foreground hover:text-foreground'
-                      )}
-                    >
-                      {type === 'All' ? 'All Patients' : type}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Search */}
-                <div className="relative">
-                  <Search
-                    size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-                  />
-                  <Input
-                    placeholder="Search by name or MRN..."
-                    className="pl-8 h-9 w-64 text-sm"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
+        <main className="flex-1 p-7 flex flex-col gap-5">
+          {/* Controls row */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              {/* Status filter tabs */}
+              <div className="flex items-center bg-slate-100 rounded-full p-1 gap-0.5">
+                {(['Active', 'Pending', 'Deactivated'] as const).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatusFilter(s)}
+                    className={cn(
+                      'px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-150',
+                      statusFilter === s
+                        ? 'bg-white text-primary shadow-sm font-semibold'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {`${s} Patient`}
+                  </button>
+                ))}
               </div>
 
-              <Button className="h-9 px-4 text-sm font-semibold gap-2 shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
-                <UserPlus size={15} />
-                Enroll New Patient
-              </Button>
+              {/* Search */}
+              <div className="relative">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                />
+                <Input
+                  placeholder="Search by name or MRN..."
+                  className="pl-8 h-9 w-64 text-sm"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
             </div>
 
-            {/* Table card */}
+            <div className="flex items-center gap-2">
+              {/* Programs filter dropdown */}
+              <div ref={programDropdownRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setProgramDropdownOpen((o) => !o)}
+                  className={cn(
+                    'h-9 px-3.5 flex items-center gap-2 rounded-lg border text-sm font-medium transition-colors',
+                    programFilter !== 'All'
+                      ? 'border-primary/40 bg-primary/5 text-primary'
+                      : 'border-slate-200 bg-white text-foreground hover:bg-slate-50'
+                  )}
+                >
+                  <Filter size={13} />
+                  {programFilter === 'All' ? 'Programs' : programFilter}
+                  <ChevronDown
+                    size={13}
+                    className={cn(
+                      'text-muted-foreground transition-transform duration-150',
+                      programDropdownOpen && 'rotate-180'
+                    )}
+                  />
+                </button>
+
+                {programDropdownOpen && (
+                  <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-40 bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.12)] py-1.5 overflow-hidden">
+                    {(['All', 'APCM', 'RPM'] as const).map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => {
+                          setProgramFilter(opt);
+                          setProgramDropdownOpen(false);
+                        }}
+                        className={cn(
+                          'w-full flex items-center justify-between px-3.5 py-2.5 text-[13px] font-medium transition-colors text-left',
+                          programFilter === opt ? 'bg-primary/5 text-primary' : 'text-foreground hover:bg-slate-50'
+                        )}
+                      >
+                        {opt === 'All' ? 'All Programs' : opt}
+                        {programFilter === opt && <Check size={13} className="text-primary shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Enroll dropdown */}
+              <div ref={enrollDropdownRef} className="relative">
+                <Button
+                  className="h-9 px-4 text-sm font-semibold gap-2 shadow-[0_4px_14px_rgba(13,148,136,0.22)]"
+                  onClick={() => setEnrollDropdownOpen((o) => !o)}
+                >
+                  <UserPlus size={15} />
+                  Enroll New Patient
+                  <ChevronDown
+                    size={13}
+                    className={cn('transition-transform duration-150', enrollDropdownOpen && 'rotate-180')}
+                  />
+                </Button>
+
+                {enrollDropdownOpen && (
+                  <div className="absolute right-0 top-[calc(100%+6px)] z-50">
+                    <div className="w-52 bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.13)] overflow-hidden py-1.5">
+                      {/* Manual Enroll */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEnrollDropdownOpen(false);
+                          navigate(PATIENT_ENROLL_PATH);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 transition-colors text-left"
+                      >
+                        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                          <ClipboardList size={13} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-[12.5px] font-semibold text-foreground">Manual Enroll</p>
+                          <p className="text-[10.5px] text-muted-foreground">Enter details manually</p>
+                        </div>
+                      </button>
+
+                      {/* Divider */}
+                      <div className="mx-3 my-1 border-t border-slate-100" />
+
+                      {/* EHR Linked Enroll */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEnrollDropdownOpen(false);
+                          setEhrSearchModal({ open: true, ehr: null });
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 transition-colors text-left"
+                      >
+                        <div className="w-6 h-6 rounded-md bg-violet-100 flex items-center justify-center shrink-0">
+                          <Link2 size={13} className="text-violet-600" />
+                        </div>
+                        <div>
+                          <p className="text-[12.5px] font-semibold text-foreground">EHR Linked Enroll</p>
+                          <p className="text-[10.5px] text-muted-foreground">Import from EHR</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* end flex items-center gap-2 */}
+          </div>
+
+          {/* Deactivated empty state — outside table */}
+          {statusFilter === 'Deactivated' && filteredData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center flex-1 py-10 gap-4">
+              <img src="/no-data-deactivated.svg" alt="No deactivated patients" className="w-56 h-56 object-contain" />
+              <div className="text-center space-y-1.5">
+                <p className="text-[14.5px] font-bold text-foreground">No Deactivated Patients</p>
+                <p className="text-[12.5px] text-muted-foreground max-w-[300px] leading-relaxed">
+                  Patients you deactivate will appear here.
+                </p>
+              </div>
+            </div>
+          ) : (
             <div className="bg-white border border-slate-200 rounded-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
               <Table>
                 <TableHeader>
@@ -411,9 +587,33 @@ export function PatientList(): React.JSX.Element {
 
                 <TableBody>
                   {table.getRowModel().rows.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="text-center py-16 text-muted-foreground text-sm">
-                        No patients match your search criteria.
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell colSpan={columns.length} className="py-0">
+                        {patients.filter((p) => p.status === statusFilter).length === 0 ? (
+                          /* ── No patients enrolled yet ── */
+                          <div className="flex flex-col items-center justify-center py-14 gap-5">
+                            <NoPatientsSVG />
+                            <div className="text-center space-y-1.5">
+                              <p className="text-[14.5px] font-bold text-foreground">No Patients Enrolled Yet</p>
+                              <p className="text-[12.5px] text-muted-foreground max-w-[300px] leading-relaxed">
+                                Your patient list is empty. Click{' '}
+                                <span className="font-semibold text-foreground">Enroll New Patient</span> to get
+                                started.
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          /* ── Search / filter returned nothing ── */
+                          <div className="flex flex-col items-center justify-center py-12 gap-4">
+                            <NoResultsSVG />
+                            <div className="text-center space-y-1">
+                              <p className="text-[13.5px] font-semibold text-foreground">No results found</p>
+                              <p className="text-[12px] text-muted-foreground">
+                                Try adjusting your search or program filter.
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -434,7 +634,7 @@ export function PatientList(): React.JSX.Element {
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
+              {/* Pagination — only when there are rows */}
               {total > 0 && (
                 <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100">
                   <p className="text-xs text-muted-foreground">
@@ -485,9 +685,57 @@ export function PatientList(): React.JSX.Element {
                 </div>
               )}
             </div>
-          </main>
-        )}
+          )}
+          {/* end deactivated ternary */}
+        </main>
       </div>
+
+      {/* EHR Patient Search Modal */}
+      <EHRPatientSearchModal
+        open={ehrSearchModal.open}
+        onClose={() => setEhrSearchModal({ open: false, ehr: null })}
+        ehr={ehrSearchModal.ehr}
+        onFetch={(prefill) => {
+          setEhrSearchModal({ open: false, ehr: null });
+          handleEHRSelect(prefill);
+        }}
+      />
+
+      {/* Edit patient */}
+      {editPatientData && (
+        <EnrollPatient
+          open={!!editPatientData}
+          onOpenChange={(o) => {
+            if (!o) setEditPatientData(null);
+          }}
+          onEnrolled={() => {}}
+          editPatient={editPatientData}
+          onUpdated={handlePatientUpdated}
+        />
+      )}
+
+      {/* Deactivate confirmation */}
+      <ConfirmDialog
+        open={!!deactivateTarget}
+        onOpenChange={(o) => {
+          if (!o) setDeactivateTarget(null);
+        }}
+        icon={<PowerOff size={18} />}
+        iconClassName="bg-amber-50 text-amber-600"
+        title="Deactivate Patient"
+        description={
+          <>
+            Are you sure you want to deactivate{' '}
+            <span className="font-semibold text-foreground" data-phi="true">
+              {deactivateTarget?.name}
+            </span>
+            ? The patient will be moved to the Deactivated tab and will no longer appear in active lists.
+          </>
+        }
+        confirmLabel="Deactivate Patient"
+        confirmClassName="bg-amber-600 text-white hover:bg-amber-700"
+        onConfirm={confirmDeactivate}
+      />
     </div>
   );
 }

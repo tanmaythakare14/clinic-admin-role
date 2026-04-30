@@ -104,12 +104,6 @@ function EHRSetupView({ onComplete }: { onComplete: () => void }): React.JSX.Ele
                 <p className="font-bold text-sm text-foreground">{ehr.system} EHR</p>
               </div>
             </div>
-            <Badge variant="outline" className={STATUS_BADGE_CLASS[ehr.integrationStatus]}>
-              <span
-                className={`inline-block rounded-full w-1.5 h-1.5 mr-1.5 ${STATUS_DOT_CLASS[ehr.integrationStatus]}`}
-              />
-              {ehr.integrationStatus}
-            </Badge>
           </div>
         </CardHeader>
 
@@ -364,39 +358,98 @@ export function ReviewEHR(): React.JSX.Element {
       </div>
 
       {/* Onboarding Success Dialog */}
-      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogContent className="max-w-[480px] p-0 overflow-hidden rounded-2xl gap-0">
-          {/* Header */}
-          <div className="flex flex-col items-center px-8 pt-8 pb-6 text-center">
-            <div className="flex items-center justify-center rounded-full w-16 h-16 bg-emerald-50 border border-emerald-100 mb-4">
-              <Check size={28} className="text-emerald-500" strokeWidth={2.5} />
+      <Dialog open={showSuccess} onOpenChange={() => {}}>
+        <DialogContent
+          showCloseButton={false}
+          className="max-w-[440px] sm:max-w-[440px] p-0 gap-0 overflow-hidden rounded-2xl"
+        >
+          {/* ── Animated illustration ── */}
+          <div className="bg-gradient-to-b from-emerald-50/80 to-white pt-10 pb-6 flex flex-col items-center px-6 text-center">
+            <style>{`
+              @keyframes ob-ring-1 {
+                0%   { transform: scale(0.6); opacity: 0.6; }
+                100% { transform: scale(1.6); opacity: 0; }
+              }
+              @keyframes ob-ring-2 {
+                0%   { transform: scale(0.6); opacity: 0.4; }
+                100% { transform: scale(1.9); opacity: 0; }
+              }
+              @keyframes ob-circle-in {
+                0%   { transform: scale(0); opacity: 0; }
+                60%  { transform: scale(1.12); opacity: 1; }
+                80%  { transform: scale(0.96); }
+                100% { transform: scale(1); opacity: 1; }
+              }
+              @keyframes ob-check {
+                from { stroke-dashoffset: 64; }
+                to   { stroke-dashoffset: 0; }
+              }
+              @keyframes ob-sparkle {
+                0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+                50%  { opacity: 1; }
+                100% { opacity: 0; transform: scale(1.4) rotate(25deg); }
+              }
+              .ob-ring-1 { animation: ob-ring-1 1.2s cubic-bezier(0,0,0.2,1) 0.15s forwards; }
+              .ob-ring-2 { animation: ob-ring-2 1.4s cubic-bezier(0,0,0.2,1) 0.05s forwards; }
+              .ob-circle { animation: ob-circle-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.1s both; }
+              .ob-check  { stroke-dasharray: 64; stroke-dashoffset: 64; animation: ob-check 0.45s cubic-bezier(0.65,0,0.35,1) 0.5s forwards; }
+              .ob-sparkle-1 { animation: ob-sparkle 0.7s ease-out 0.55s both; }
+              .ob-sparkle-2 { animation: ob-sparkle 0.7s ease-out 0.65s both; }
+              .ob-sparkle-3 { animation: ob-sparkle 0.7s ease-out 0.60s both; }
+              .ob-sparkle-4 { animation: ob-sparkle 0.7s ease-out 0.70s both; }
+            `}</style>
+
+            {/* Illustration */}
+            <div className="relative flex items-center justify-center w-28 h-28 mb-5">
+              <div className="ob-ring-2 absolute w-20 h-20 rounded-full bg-emerald-400/20" />
+              <div className="ob-ring-1 absolute w-20 h-20 rounded-full bg-emerald-400/30" />
+              <div className="ob-sparkle-1 absolute top-1 right-3 w-2.5 h-2.5 rounded-full bg-emerald-300" />
+              <div className="ob-sparkle-2 absolute bottom-2 right-1 w-2 h-2 rounded-full bg-teal-400" />
+              <div className="ob-sparkle-3 absolute top-2 left-2 w-2 h-2 rounded-full bg-emerald-400" />
+              <div className="ob-sparkle-4 absolute bottom-1 left-4 w-1.5 h-1.5 rounded-full bg-teal-300" />
+              <div className="ob-circle w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_8px_32px_rgba(16,185,129,0.40)]">
+                <svg width="34" height="27" viewBox="0 0 34 27" fill="none">
+                  <path
+                    className="ob-check"
+                    d="M3 13.5L12.5 23L31 3"
+                    stroke="white"
+                    strokeWidth="3.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
             </div>
-            <h2 className="font-bold text-foreground text-xl tracking-tight mb-1.5">Onboarding Complete!</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-[320px]">
+
+            <h2 className="font-bold text-foreground text-[19px] tracking-tight mb-1.5">Onboarding Complete!</h2>
+            <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[300px]">
               Your clinic admin profile has been successfully set up. Here's a summary of what was completed.
             </p>
           </div>
 
-          {/* Steps summary */}
-          <div className="mx-6 mb-6 rounded-xl border border-border divide-y divide-border overflow-hidden">
-            {COMPLETED_STEPS.map((step) => (
+          {/* ── Steps summary ── */}
+          <div className="mx-6 mb-5 rounded-xl border border-slate-100 divide-y divide-slate-100 overflow-hidden bg-slate-50/50">
+            {COMPLETED_STEPS.map((step, i) => (
               <div key={step.label} className="flex items-start gap-3 px-4 py-3.5">
                 <div className="flex items-center justify-center rounded-full w-5 h-5 bg-emerald-50 border border-emerald-200 shrink-0 mt-0.5">
                   <Check size={11} className="text-emerald-600" strokeWidth={3} />
                 </div>
-                <div>
-                  <p className="text-xs font-semibold text-foreground">{step.label}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{step.detail}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] font-semibold text-foreground">{step.label}</p>
+                  <p className="text-[11.5px] text-muted-foreground mt-0.5">{step.detail}</p>
                 </div>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5">
+                  Step {i + 1}
+                </span>
               </div>
             ))}
           </div>
 
-          {/* Footer */}
+          {/* ── Footer ── */}
           <div className="px-6 pb-6">
             <Button
               type="button"
-              className="w-full h-11 text-sm font-semibold"
+              className="w-full h-11 text-sm font-semibold shadow-[0_4px_14px_rgba(13,148,136,0.25)]"
               onClick={() => navigate(DASHBOARD_PATH)}
             >
               Go to Dashboard <ArrowRight size={15} />

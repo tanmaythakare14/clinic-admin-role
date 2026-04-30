@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   RotateCcw,
   FlaskConical,
@@ -15,7 +15,7 @@ import {
   Gauge,
 } from 'lucide-react';
 import { SIGN_IN_PATH, REVIEW_EHR_PATH } from '@/modules/onboarding/constants';
-import { PATIENT_BASE_PATH } from '@/modules/patient/constants';
+import { PATIENT_BASE_PATH, PATIENT_ENROLL_PATH } from '@/modules/patient/constants';
 
 interface DemoAction {
   label: string;
@@ -30,9 +30,13 @@ interface DemoSection {
   actions: DemoAction[];
 }
 
-export function DemoGuide(): React.JSX.Element {
+export function DemoGuide(): React.JSX.Element | null {
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(true);
+
+  // Hide on the enrollment page — it has its own screen-specific demo guide
+  if (location.pathname === PATIENT_ENROLL_PATH) return null;
 
   const sections: DemoSection[] = [
     {

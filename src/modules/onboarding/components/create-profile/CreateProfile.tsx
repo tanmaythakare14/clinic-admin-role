@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import { Activity, ArrowRight, Camera, Check } from 'lucide-react';
+import { Activity, ArrowRight, Check, Upload } from 'lucide-react';
 import { OnboardingLeftPanel } from '../onboarding-left-panel';
 import { toast } from 'sonner';
 
@@ -129,6 +129,7 @@ export function CreateProfile(): React.JSX.Element {
               <div className="space-y-1.5">
                 <Label>Profile Picture</Label>
                 <div className="flex items-center gap-4">
+                  {/* Avatar box */}
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
@@ -144,19 +145,18 @@ export function CreateProfile(): React.JSX.Element {
                     )}
                   </button>
 
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm font-semibold text-foreground">Upload Profile Picture</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="gap-1.5 text-xs font-semibold"
-                    >
-                      <Camera size={12} />
-                      {avatarSrc ? 'Change' : 'Upload'}
-                    </Button>
-                  </div>
+                  {/* Upload button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload size={13} />
+                    Upload Photo
+                  </Button>
+                  <p className="text-[11.5px] text-muted-foreground">JPG, PNG · max 2 MB</p>
 
                   <input
                     ref={fileInputRef}

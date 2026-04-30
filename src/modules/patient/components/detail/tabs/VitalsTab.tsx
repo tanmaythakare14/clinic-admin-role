@@ -268,7 +268,7 @@ const VITAL_COLOR: Record<string, string> = {
 
 // ─── Normal range bands (painted as a gradient stop on the chart) ─────────────
 
-function makeLineOptions(yMin: number, yMax: number): ChartOptions<'line'> {
+function makeLineOptions(yMin: number, yMax: number, normalLow: number, normalHigh: number): ChartOptions<'line'> {
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -305,7 +305,7 @@ function makeLineOptions(yMin: number, yMax: number): ChartOptions<'line'> {
     elements: { point: { radius: 0, hoverRadius: 4 }, line: { tension: 0.4, borderWidth: 2 } },
     interaction: { mode: 'index', intersect: false },
     // paint normal band via a background plugin
-    // We encode normalLow/normalHigh into the extra field for the custom plugin
+    _normalBand: { low: normalLow, high: normalHigh },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 }
@@ -504,22 +504,22 @@ export function VitalsTab({ scenario }: { scenario: DeviceScenario }): React.JSX
   }
 
   const bpOptions = {
-    ...makeLineOptions(60, 175),
+    ...makeLineOptions(60, 175, 90, 130),
     _normalBand: { low: 90, high: 130 },
   } as ChartOptions<'line'>;
 
   const hrOptions = {
-    ...makeLineOptions(40, 130),
+    ...makeLineOptions(40, 130, 60, 100),
     _normalBand: { low: 60, high: 100 },
   } as ChartOptions<'line'>;
 
   const weightOptions = {
-    ...makeLineOptions(160, 200),
+    ...makeLineOptions(160, 200, 170, 185),
     _normalBand: { low: 170, high: 185 },
   } as ChartOptions<'line'>;
 
   const glucoseOptions = {
-    ...makeLineOptions(45, 190),
+    ...makeLineOptions(45, 190, 70, 130),
     _normalBand: { low: 70, high: 130 },
   } as ChartOptions<'line'>;
 
@@ -680,40 +680,38 @@ export function VitalsTab({ scenario }: { scenario: DeviceScenario }): React.JSX
 
       {/* ── Vital History ── */}
       <div className="bg-white rounded-[14px] border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
-        {/* History toolbar */}
-        <div className="flex items-center px-5 py-3.5 border-b border-slate-100">
-          <span className="text-[13px] font-bold text-foreground">Vital History</span>
-        </div>
-
-        {/* Filters */}
-        <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-100">
-          <div className="relative">
-            <Search
-              size={13}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+        {/* History toolbar — heading + filters inline */}
+        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+          <span className="text-[13px] font-bold text-foreground shrink-0">Vital History</span>
+          <div className="flex items-center gap-2.5 ml-auto">
+            <div className="relative">
+              <Search
+                size={13}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+              />
+              <Input
+                placeholder="Search readings..."
+                className="pl-8 h-8 w-48 text-[12.5px]"
+                value={historySearch}
+                onChange={(e) => setHistorySearch(e.target.value)}
+              />
+            </div>
+            <SelectPill
+              value={historyVital}
+              options={['All Vitals', 'BP', 'HR', 'Weight', 'Glucose']}
+              onChange={(v) => setHistoryVital(v as VitalFilter)}
             />
-            <Input
-              placeholder="Search readings..."
-              className="pl-8 h-8 w-52 text-[12.5px]"
-              value={historySearch}
-              onChange={(e) => setHistorySearch(e.target.value)}
+            <SelectPill
+              value={historyStatus}
+              options={['All Statuses', 'Normal', 'Borderline', 'Critical']}
+              onChange={(v) => setHistoryStatus(v as StatusFilter)}
+            />
+            <SelectPill
+              value={historySource}
+              options={['All Sources', 'RPM Device', 'Manual Entry', 'Patient Self Entry']}
+              onChange={(v) => setHistorySource(v as SourceFilter)}
             />
           </div>
-          <SelectPill
-            value={historyVital}
-            options={['All Vitals', 'BP', 'HR', 'Weight', 'Glucose']}
-            onChange={(v) => setHistoryVital(v as VitalFilter)}
-          />
-          <SelectPill
-            value={historyStatus}
-            options={['All Statuses', 'Normal', 'Borderline', 'Critical']}
-            onChange={(v) => setHistoryStatus(v as StatusFilter)}
-          />
-          <SelectPill
-            value={historySource}
-            options={['All Sources', 'RPM Device', 'Manual Entry', 'Patient Self Entry']}
-            onChange={(v) => setHistorySource(v as SourceFilter)}
-          />
         </div>
 
         {/* Table */}

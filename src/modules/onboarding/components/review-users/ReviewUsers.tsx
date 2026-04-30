@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useForm, useWatch, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import { Activity, ArrowRight, Check, Plus, UserPlus, AlertCircle, Pencil, Trash2 } from 'lucide-react';
+import {
+  Activity,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Pencil,
+  Plus,
+  Send,
+  Trash2,
+  AlertCircle,
+  XCircle,
+} from 'lucide-react';
 import { OnboardingLeftPanel } from '../onboarding-left-panel';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 import { CREATE_PROFILE_PATH, REVIEW_USERS_PATH, REVIEW_EHR_PATH } from '../../constants';
 
 const STEPS = [
@@ -27,6 +38,7 @@ type UserRole = 'Physician' | 'Nurse' | 'Digital Health Navigator';
 
 interface ClinicUser {
   id: string;
+  prefix?: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -80,62 +92,313 @@ const INITIAL_USERS: ClinicUser[] = [
   },
 ];
 
-type PhysicianForm = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  specialty: string;
-  npi: string;
-};
-const EMPTY_FORM: PhysicianForm = { firstName: '', lastName: '', email: '', phone: '', specialty: '', npi: '' };
+// ─── Prefix options ───────────────────────────────────────────────────────────
 
-function PhysicianFormFields({
-  form,
+const PREFIX_OPTIONS = ['MD', 'MBBS', 'DO', 'DDS', 'PhD', 'NP', 'PA', 'RN'] as const;
+
+// ─── Phone formatter ──────────────────────────────────────────────────────────
+
+function formatPhoneNumber(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// ─── Mock NPI registry ────────────────────────────────────────────────────────
+
+const VERIFIED_NPIS = new Set([
+  '1234567890',
+  '2345678901',
+  '3456789012',
+  '4567890123',
+  '5678901234',
+  '6789012345',
+  '7890123456',
+  '8901234567',
+  '9012345678',
+  '0123456789',
+]);
+
+type NpiStatus = 'idle' | 'verifying' | 'verified' | 'not-found';
+
+// ─── Specialty options ────────────────────────────────────────────────────────
+
+const SPECIALTY_OPTIONS = [
+  'Anesthesiology',
+  'Cardiology',
+  'Dermatology',
+  'Emergency Medicine',
+  'Endocrinology',
+  'Family Medicine',
+  'Gastroenterology',
+  'Geriatrics',
+  'Internal Medicine',
+  'Nephrology',
+  'Neurology',
+  'Oncology',
+  'Ophthalmology',
+  'Orthopedics',
+  'Pediatrics',
+  'Psychiatry',
+  'Pulmonology',
+  'Radiology',
+  'Rheumatology',
+  'Urology',
+] as const;
+
+// ─── Schema ───────────────────────────────────────────────────────────────────
+
+const physicianSchema = z.object({
+  prefix: z.enum(['MD', 'MBBS', 'DO', 'DDS', 'PhD', 'NP', 'PA', 'RN']),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Enter a valid email address'),
+  phone: z.string().regex(/^\(\d{3}\) \d{3}-\d{4}$/, 'Enter a valid 10-digit phone number'),
+  specialty: z.string().min(1, 'Select a specialty'),
+  npiNumber: z
+    .string()
+    .min(10, 'NPI must be 10 digits')
+    .max(10, 'NPI must be 10 digits')
+    .regex(/^\d+$/, 'NPI must contain only digits'),
+});
+type PhysicianFormValues = z.infer<typeof physicianSchema>;
+
+// ─── Searchable Select ────────────────────────────────────────────────────────
+
+function SearchableSelect({
+  value,
   onChange,
+  options,
+  placeholder,
+  error,
 }: {
-  form: PhysicianForm;
-  onChange: (key: keyof PhysicianForm, value: string) => void;
+  value: string;
+  onChange: (val: string) => void;
+  options: readonly string[];
+  placeholder: string;
+  error?: boolean;
 }): React.JSX.Element {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery('');
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, []);
+
+  const filtered = options.filter((o) => o.toLowerCase().includes(query.toLowerCase()));
+
   return (
-    <>
-      <div className="grid grid-cols-2 gap-x-5 gap-y-5">
-        {(['firstName', 'lastName'] as const).map((key) => (
-          <div key={key} className="space-y-1.5">
-            <Label htmlFor={key}>{key === 'firstName' ? 'First Name' : 'Last Name'}</Label>
-            <Input
-              id={key}
-              required
-              placeholder={key === 'firstName' ? 'John' : 'Doe'}
-              value={form[key]}
-              onChange={(e) => onChange(key, e.target.value)}
-            />
-          </div>
-        ))}
-        {(
-          [
-            ['email', 'Email Address', 'email', 'physician@clinic.com', true],
-            ['phone', 'Phone Number', 'tel', '+1 (555) 000-0000', true],
-            ['specialty', 'Specialty', 'text', 'e.g. Cardiology (optional)', false],
-            ['npi', 'NPI Number', 'text', '10-digit NPI', true],
-          ] as const
-        ).map(([key, label, type, placeholder, required]) => (
-          <div key={key} className="space-y-1.5">
-            <Label htmlFor={key}>{label}</Label>
-            <Input
-              id={key}
-              type={type}
-              placeholder={placeholder}
-              required={required}
-              value={form[key]}
-              onChange={(e) => onChange(key as keyof PhysicianForm, e.target.value)}
-            />
-          </div>
-        ))}
+    <div ref={containerRef} className="relative">
+      <div
+        role="combobox"
+        aria-expanded={open}
+        onClick={() => {
+          setOpen((p) => !p);
+          if (!open) setTimeout(() => inputRef.current?.focus(), 0);
+        }}
+        className={cn(
+          'flex items-center h-9 rounded-md border bg-background pl-3 pr-9 cursor-pointer select-none',
+          error ? 'border-destructive' : 'border-input',
+          open && 'ring-2 ring-ring ring-offset-1 border-ring'
+        )}
+      >
+        <input
+          ref={inputRef}
+          value={open ? query : value}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            if (!open) setOpen(true);
+          }}
+          placeholder={value ? '' : placeholder}
+          className={cn(
+            'flex-1 bg-transparent outline-none text-[13px] min-w-0',
+            !value && !open && 'text-muted-foreground'
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(true);
+          }}
+        />
+        <span className="absolute right-3 pointer-events-none text-muted-foreground">
+          {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </span>
       </div>
-    </>
+      {open && (
+        <div className="absolute z-50 w-full mt-1.5 bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)]">
+          <ul className="py-1.5 max-h-[220px] overflow-y-auto [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200">
+            {filtered.length === 0 ? (
+              <li className="px-4 py-3 text-[13px] text-muted-foreground text-center">No matches found</li>
+            ) : (
+              filtered.map((opt) => (
+                <li key={opt}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange(opt);
+                      setOpen(false);
+                      setQuery('');
+                    }}
+                    className={cn(
+                      'w-full text-left px-4 py-2 text-[13px] transition-colors duration-100',
+                      value === opt ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
+                    )}
+                  >
+                    {opt}
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
+
+// ─── Prefix Dropdown ──────────────────────────────────────────────────────────
+
+function PrefixDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }): React.JSX.Element {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative flex items-center shrink-0 border-r border-border bg-muted">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 pl-3 pr-2 h-full text-[12.5px] font-medium text-foreground hover:bg-slate-100 transition-colors"
+      >
+        <span className="min-w-[28px] text-center">{value}</span>
+        <ChevronDown
+          size={11}
+          className={cn('text-muted-foreground transition-transform duration-150', open && 'rotate-180')}
+        />
+      </button>
+      {open && (
+        <div className="absolute top-[calc(100%+6px)] left-0 z-50 min-w-[110px] bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)] py-1.5">
+          {PREFIX_OPTIONS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => {
+                onChange(item);
+                setOpen(false);
+              }}
+              className={cn(
+                'w-full text-left px-3 py-2 text-[13px] transition-colors duration-100',
+                value === item ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
+              )}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── NPI status badge ─────────────────────────────────────────────────────────
+
+function NpiStatusBadge({ status }: { status: NpiStatus }): React.JSX.Element | null {
+  if (status === 'idle') return null;
+  if (status === 'verifying')
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+        <Loader2 size={11} className="animate-spin" />
+        Verifying…
+      </span>
+    );
+  if (status === 'verified')
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+        <CheckCircle2 size={12} />
+        NPI Verified
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-500">
+      <XCircle size={12} />
+      NPI Not Found
+    </span>
+  );
+}
+
+// ─── Success view ─────────────────────────────────────────────────────────────
+
+function AddSuccessView({ email }: { email: string }): React.JSX.Element {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 30);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center text-center py-8 px-6 gap-4">
+      <div className="relative flex items-center justify-center w-20 h-20">
+        <span className="absolute inset-0 rounded-full bg-emerald-100 animate-ping opacity-30" />
+        <span
+          className="absolute inset-[-6px] rounded-full border-2 border-emerald-200 transition-opacity duration-700"
+          style={{ opacity: mounted ? 0.5 : 0 }}
+        />
+        <div
+          className="relative w-20 h-20 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
+          style={{ transform: mounted ? 'scale(1)' : 'scale(0.4)', opacity: mounted ? 1 : 0 }}
+        >
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <path
+              d="M9 18.5l6.5 6.5 11.5-13"
+              stroke="#10b981"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray="36"
+              strokeDashoffset={mounted ? 0 : 36}
+              style={{ transition: 'stroke-dashoffset 0.45s ease 0.25s' }}
+            />
+          </svg>
+        </div>
+      </div>
+      <div
+        className="space-y-1.5 transition-[transform,opacity] duration-500"
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? 'translateY(0)' : 'translateY(8px)',
+          transitionDelay: '0.2s',
+        }}
+      >
+        <h3 className="text-[17px] font-bold text-foreground">Invite Sent Successfully!</h3>
+        <p className="text-[13px] text-muted-foreground max-w-[340px] leading-relaxed">
+          An invitation email has been sent to{' '}
+          <span className="font-semibold text-foreground" data-phi="true">
+            {email}
+          </span>
+          . They can use the link to set up their account.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Add Physician Modal ──────────────────────────────────────────────────────
 
 function AddPhysicianModal({
   onClose,
@@ -144,58 +407,249 @@ function AddPhysicianModal({
   onClose: () => void;
   onAdd: (user: ClinicUser) => void;
 }): React.JSX.Element {
-  const [form, setForm] = useState<PhysicianForm>(EMPTY_FORM);
+  const form = useForm<PhysicianFormValues>({
+    resolver: zodResolver(physicianSchema),
+    defaultValues: { prefix: 'MD', firstName: '', lastName: '', email: '', phone: '', specialty: '', npiNumber: '' },
+  });
 
-  function handleSubmit(e: React.FormEvent): void {
-    e.preventDefault();
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [invitedEmail, setInvitedEmail] = useState('');
+  const [npiStatus, setNpiStatus] = useState<NpiStatus>('idle');
+  const npiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const npiValue = useWatch({ control: form.control, name: 'npiNumber' });
+
+  useEffect(() => {
+    if (npiTimerRef.current) clearTimeout(npiTimerRef.current);
+    const digits = npiValue?.replace(/\D/g, '') ?? '';
+    if (digits.length !== 10) {
+      setNpiStatus('idle');
+      return;
+    }
+    setNpiStatus('verifying');
+    npiTimerRef.current = setTimeout(() => {
+      setNpiStatus(VERIFIED_NPIS.has(digits) ? 'verified' : 'not-found');
+    }, 1400);
+    return () => {
+      if (npiTimerRef.current) clearTimeout(npiTimerRef.current);
+    };
+  }, [npiValue]);
+
+  function handleSubmit(values: PhysicianFormValues): void {
     const newUser: ClinicUser = {
       id: `ca-${Date.now()}`,
-      firstName: form.firstName,
-      lastName: form.lastName,
-      email: form.email,
-      phone: form.phone,
+      prefix: values.prefix,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      phone: values.phone,
       role: 'Physician',
       addedBy: 'Clinic Admin',
-      specialty: form.specialty || undefined,
-      npi: form.npi,
+      specialty: values.specialty,
+      npi: values.npiNumber,
     };
     onAdd(newUser);
-    toast.success(`${form.firstName} ${form.lastName} added successfully!`);
-    onClose();
+    setInvitedEmail(values.email);
+    setShowSuccess(true);
+    toast.success(`Invite sent to ${values.email}`);
   }
 
   return (
     <Dialog
       open
-      onOpenChange={(open) => {
-        if (!open) onClose();
+      onOpenChange={(o) => {
+        if (!o) onClose();
       }}
     >
-      <DialogContent showCloseButton={false} className="sm:max-w-[680px]">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center rounded-xl bg-primary/10 w-10 h-10 flex-shrink-0">
-              <UserPlus size={18} className="text-primary" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <DialogTitle>Add New Physician</DialogTitle>
-              <DialogDescription>Physician will be added to your clinic</DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3 pt-1">
-          <PhysicianFormFields form={form} onChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))} />
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">Add Physician</Button>
-          </DialogFooter>
-        </form>
+      <DialogContent className="sm:max-w-[680px] p-0 gap-0">
+        {showSuccess ? (
+          <AddSuccessView email={invitedEmail} />
+        ) : (
+          <>
+            {/* Header */}
+            <DialogHeader className="px-6 pt-5 pb-4 border-b border-slate-100">
+              <DialogTitle className="text-[14px] font-bold">Add New Physician</DialogTitle>
+              <p className="text-[12px] text-muted-foreground mt-0.5">
+                Fill in the details below to invite a new physician to the portal.
+              </p>
+            </DialogHeader>
+
+            {/* Body */}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)}>
+                <div className="px-6 py-5 space-y-4">
+                  {/* Name row — Prefix + First Name | Last Name */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field: firstField }) => (
+                        <FormItem>
+                          <FormLabel className="text-[12px]">First Name</FormLabel>
+                          <FormControl>
+                            <div className="flex h-9 rounded-md border border-input bg-background overflow-visible transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
+                              <Controller
+                                control={form.control}
+                                name="prefix"
+                                render={({ field: prefixField }) => (
+                                  <PrefixDropdown value={prefixField.value} onChange={prefixField.onChange} />
+                                )}
+                              />
+                              <input
+                                type="text"
+                                placeholder="First name"
+                                autoComplete="given-name"
+                                className="flex-1 px-3 text-sm bg-transparent outline-none placeholder:text-muted-foreground min-w-0"
+                                value={firstField.value}
+                                onChange={firstField.onChange}
+                                onBlur={firstField.onBlur}
+                                name={firstField.name}
+                                ref={firstField.ref}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="text-[11px]" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[12px]">Last Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Last name" className="h-9 text-sm" {...field} />
+                          </FormControl>
+                          <FormMessage className="text-[11px]" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Email + Phone */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[12px]">Email Address</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="e.g. james.hartwell@clinic.com"
+                              className="h-9 text-sm"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-[11px]" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[12px]">Phone Number</FormLabel>
+                          <FormControl>
+                            <div className="flex h-9 rounded-md border border-input bg-background overflow-hidden transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
+                              <div className="flex items-center gap-1.5 px-3 bg-muted border-r border-border text-sm font-medium select-none shrink-0">
+                                🇺🇸 <span className="text-muted-foreground text-[12px]">+1</span>
+                              </div>
+                              <input
+                                type="tel"
+                                placeholder="(555) 000-0000"
+                                autoComplete="tel"
+                                data-phi="true"
+                                className="flex-1 px-3 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
+                                value={field.value}
+                                onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="text-[11px]" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* NPI + Specialty */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="npiNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center justify-between">
+                            <FormLabel className="text-[12px]">NPI Number</FormLabel>
+                            <NpiStatusBadge status={npiStatus} />
+                          </div>
+                          <FormControl>
+                            <Input
+                              placeholder="10-digit NPI"
+                              maxLength={10}
+                              className={cn(
+                                'h-9 text-sm',
+                                npiStatus === 'verified' && 'border-emerald-400 focus-visible:ring-emerald-300',
+                                npiStatus === 'not-found' && 'border-rose-400 focus-visible:ring-rose-300'
+                              )}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-[11px]" />
+                        </FormItem>
+                      )}
+                    />
+                    <Controller
+                      control={form.control}
+                      name="specialty"
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormLabel className="text-[12px]">Specialty</FormLabel>
+                          <FormControl>
+                            <SearchableSelect
+                              value={field.value}
+                              onChange={field.onChange}
+                              options={SPECIALTY_OPTIONS}
+                              placeholder="Select a specialty"
+                              error={!!fieldState.error}
+                            />
+                          </FormControl>
+                          {fieldState.error && (
+                            <p className="text-[11px] text-destructive">{fieldState.error.message}</p>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+                  <Button type="button" variant="outline" className="h-9 px-6 text-[13px]" onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-9 px-6 text-[13px] gap-2 shadow-[0_4px_14px_rgba(13,148,136,0.22)]"
+                  >
+                    <Send size={13} /> Send Invite
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
 }
+
+// ─── Edit Physician Modal ─────────────────────────────────────────────────────
 
 function EditPhysicianModal({
   user,
@@ -206,18 +660,50 @@ function EditPhysicianModal({
   onClose: () => void;
   onSave: (updated: ClinicUser) => void;
 }): React.JSX.Element {
-  const [form, setForm] = useState<PhysicianForm>({
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    phone: user.phone,
-    specialty: user.specialty ?? '',
-    npi: user.npi ?? '',
+  const form = useForm<PhysicianFormValues>({
+    resolver: zodResolver(physicianSchema),
+    defaultValues: {
+      prefix: (user.prefix as PhysicianFormValues['prefix']) ?? 'MD',
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      specialty: user.specialty ?? '',
+      npiNumber: user.npi ?? '',
+    },
   });
 
-  function handleSubmit(e: React.FormEvent): void {
-    e.preventDefault();
-    onSave({ ...user, ...form, specialty: form.specialty || undefined });
+  const [npiStatus, setNpiStatus] = useState<NpiStatus>('idle');
+  const npiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const npiValue = useWatch({ control: form.control, name: 'npiNumber' });
+
+  useEffect(() => {
+    if (npiTimerRef.current) clearTimeout(npiTimerRef.current);
+    const digits = npiValue?.replace(/\D/g, '') ?? '';
+    if (digits.length !== 10) {
+      setNpiStatus('idle');
+      return;
+    }
+    setNpiStatus('verifying');
+    npiTimerRef.current = setTimeout(() => {
+      setNpiStatus(VERIFIED_NPIS.has(digits) ? 'verified' : 'not-found');
+    }, 1400);
+    return () => {
+      if (npiTimerRef.current) clearTimeout(npiTimerRef.current);
+    };
+  }, [npiValue]);
+
+  function handleSubmit(values: PhysicianFormValues): void {
+    onSave({
+      ...user,
+      prefix: values.prefix,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      phone: values.phone,
+      specialty: values.specialty,
+      npi: values.npiNumber,
+    });
     toast.success('Physician updated successfully!');
     onClose();
   }
@@ -225,31 +711,175 @@ function EditPhysicianModal({
   return (
     <Dialog
       open
-      onOpenChange={(open) => {
-        if (!open) onClose();
+      onOpenChange={(o) => {
+        if (!o) onClose();
       }}
     >
-      <DialogContent showCloseButton={false} className="sm:max-w-[680px]">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center rounded-xl bg-primary/10 w-10 h-10 flex-shrink-0">
-              <Pencil size={16} className="text-primary" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <DialogTitle>Edit Physician</DialogTitle>
-              <DialogDescription>Update physician details for your clinic</DialogDescription>
-            </div>
-          </div>
+      <DialogContent className="sm:max-w-[680px] p-0 gap-0">
+        {/* Header */}
+        <DialogHeader className="px-6 pt-5 pb-4 border-b border-slate-100">
+          <DialogTitle className="text-[14px] font-bold">Edit Physician Details</DialogTitle>
+          <p className="text-[12px] text-muted-foreground mt-0.5">Update the physician's profile information below.</p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3 pt-1">
-          <PhysicianFormFields form={form} onChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))} />
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">Save Changes</Button>
-          </DialogFooter>
-        </form>
+
+        {/* Body */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <div className="px-6 py-5 space-y-4">
+              {/* Name row */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field: firstField }) => (
+                    <FormItem>
+                      <FormLabel className="text-[12px]">First Name</FormLabel>
+                      <FormControl>
+                        <div className="flex h-9 rounded-md border border-input bg-background overflow-visible transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
+                          <Controller
+                            control={form.control}
+                            name="prefix"
+                            render={({ field: prefixField }) => (
+                              <PrefixDropdown value={prefixField.value} onChange={prefixField.onChange} />
+                            )}
+                          />
+                          <input
+                            type="text"
+                            placeholder="First name"
+                            className="flex-1 px-3 text-sm bg-transparent outline-none placeholder:text-muted-foreground min-w-0"
+                            value={firstField.value}
+                            onChange={firstField.onChange}
+                            onBlur={firstField.onBlur}
+                            name={firstField.name}
+                            ref={firstField.ref}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-[11px]" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[12px]">Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Last name" className="h-9 text-sm" {...field} />
+                      </FormControl>
+                      <FormMessage className="text-[11px]" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Email + Phone */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[12px]">Email Address</FormLabel>
+                      <FormControl>
+                        <Input type="email" className="h-9 text-sm" {...field} />
+                      </FormControl>
+                      <FormMessage className="text-[11px]" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[12px]">Phone Number</FormLabel>
+                      <FormControl>
+                        <div className="flex h-9 rounded-md border border-input bg-background overflow-hidden transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
+                          <div className="flex items-center gap-1.5 px-3 bg-muted border-r border-border text-sm font-medium select-none shrink-0">
+                            🇺🇸 <span className="text-muted-foreground text-[12px]">+1</span>
+                          </div>
+                          <input
+                            type="tel"
+                            placeholder="(555) 000-0000"
+                            autoComplete="tel"
+                            data-phi="true"
+                            className="flex-1 px-3 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
+                            value={field.value}
+                            onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-[11px]" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* NPI + Specialty */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="npiNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-[12px]">NPI Number</FormLabel>
+                        <NpiStatusBadge status={npiStatus} />
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="10-digit NPI"
+                          maxLength={10}
+                          className={cn(
+                            'h-9 text-sm',
+                            npiStatus === 'verified' && 'border-emerald-400 focus-visible:ring-emerald-300',
+                            npiStatus === 'not-found' && 'border-rose-400 focus-visible:ring-rose-300'
+                          )}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[11px]" />
+                    </FormItem>
+                  )}
+                />
+                <Controller
+                  control={form.control}
+                  name="specialty"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel className="text-[12px]">Specialty</FormLabel>
+                      <FormControl>
+                        <SearchableSelect
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={SPECIALTY_OPTIONS}
+                          placeholder="Select a specialty"
+                          error={!!fieldState.error}
+                        />
+                      </FormControl>
+                      {fieldState.error && <p className="text-[11px] text-destructive">{fieldState.error.message}</p>}
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+              <Button type="button" variant="outline" className="h-9 px-6 text-[13px]" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" className="h-9 px-6 text-[13px] shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
