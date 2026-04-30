@@ -54,6 +54,8 @@ interface DemographicsStepProps {
   defaultValues?: Partial<EnrollmentStep1Values>;
   onNext: (data: EnrollmentStep1Values) => void;
   physicians: PhysicianOption[];
+  mode?: 'enroll' | 'edit';
+  onCancel?: () => void;
 }
 
 const GENDER_OPTIONS = ['Male', 'Female', 'Other'];
@@ -411,7 +413,13 @@ function SectionLabel({ label }: { label: string }): React.JSX.Element {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function DemographicsStep({ defaultValues, onNext, physicians }: DemographicsStepProps): React.JSX.Element {
+export function DemographicsStep({
+  defaultValues,
+  onNext,
+  physicians,
+  mode = 'enroll',
+  onCancel,
+}: DemographicsStepProps): React.JSX.Element {
   const form = useForm<EnrollmentStep1Values>({
     resolver: zodResolver(schema) as Resolver<EnrollmentStep1Values>,
     defaultValues: {
@@ -726,11 +734,22 @@ export function DemographicsStep({ defaultValues, onNext, physicians }: Demograp
           )}
         />
 
-        <div className="sticky bottom-0 -mx-8 px-8 py-4 bg-white border-t border-slate-100 flex justify-end mt-6">
-          <Button type="submit" className="px-8 h-10 gap-2 shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
-            Next
-          </Button>
-        </div>
+        {mode === 'edit' ? (
+          <div className="sticky bottom-0 -mx-8 px-8 py-4 bg-white border-t border-slate-100 flex justify-between mt-6">
+            <Button type="button" variant="outline" className="px-7 h-10" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" className="px-7 h-10 shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
+              Save Changes
+            </Button>
+          </div>
+        ) : (
+          <div className="sticky bottom-0 -mx-8 px-8 py-4 bg-white border-t border-slate-100 flex justify-end mt-6">
+            <Button type="submit" className="px-8 h-10 gap-2 shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
+              Next
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );

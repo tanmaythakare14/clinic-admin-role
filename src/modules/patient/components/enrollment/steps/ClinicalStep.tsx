@@ -76,6 +76,7 @@ interface ClinicalStepProps {
   physicians: StaffOption[];
   nurses: StaffOption[];
   dhns: StaffOption[];
+  onCancel?: () => void;
 }
 
 // ─── Severity ─────────────────────────────────────────────────────────────────
@@ -504,6 +505,7 @@ export function ClinicalStep({
   physicians,
   nurses,
   dhns,
+  onCancel,
 }: ClinicalStepProps): React.JSX.Element {
   const [diagnoses, setDiagnoses] = useState<DiagnosisFormItem[]>(defaultDiagnoses);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -739,10 +741,16 @@ export function ClinicalStep({
 
           {/* Actions */}
           <div className="sticky bottom-0 -mx-8 px-8 py-4 bg-white border-t border-slate-100 flex justify-between mt-6">
-            <Button type="button" variant="outline" className="px-7 h-10 gap-2" onClick={onBack}>
-              <ArrowLeft size={14} />
-              Back
-            </Button>
+            {isEdit && onCancel ? (
+              <Button type="button" variant="outline" className="px-7 h-10" onClick={onCancel}>
+                Cancel
+              </Button>
+            ) : (
+              <Button type="button" variant="outline" className="px-7 h-10 gap-2" onClick={onBack}>
+                <ArrowLeft size={14} />
+                Back
+              </Button>
+            )}
             <Button type="submit" className="px-7 h-10 shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
               {isEdit ? 'Save Changes' : 'Enroll Patient'}
             </Button>

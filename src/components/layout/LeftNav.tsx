@@ -6,7 +6,6 @@ import {
   ChevronRight,
   LayoutDashboard,
   LogOut,
-  MessageSquare,
   Receipt,
   Settings,
   UserCog,
@@ -27,7 +26,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'patients', label: 'Patient Management', icon: <Users size={17} />, path: '/patients' },
   { id: 'users', label: 'User Management', icon: <UserCog size={17} />, path: '/users' },
   { id: 'billing', label: 'Billing', icon: <Receipt size={17} />, path: '/billing' },
-  { id: 'messages', label: 'Messages', icon: <MessageSquare size={17} />, path: '/messages', badge: 3 },
   { id: 'settings', label: 'Settings', icon: <Settings size={17} />, path: '/settings' },
 ];
 

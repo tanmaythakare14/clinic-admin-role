@@ -39,11 +39,19 @@ interface EmergencyContactStepProps {
   defaultValues?: Partial<EmergencyContactStepValues>;
   onBack: () => void;
   onNext: (data: EmergencyContactStepValues) => void;
+  mode?: 'enroll' | 'edit';
+  onCancel?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function EmergencyContactStep({ defaultValues, onBack, onNext }: EmergencyContactStepProps): React.JSX.Element {
+export function EmergencyContactStep({
+  defaultValues,
+  onBack,
+  onNext,
+  mode = 'enroll',
+  onCancel,
+}: EmergencyContactStepProps): React.JSX.Element {
   const form = useForm<EmergencyContactStepValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -172,12 +180,18 @@ export function EmergencyContactStep({ defaultValues, onBack, onNext }: Emergenc
 
         {/* Actions */}
         <div className="sticky bottom-0 -mx-8 px-8 py-4 bg-white border-t border-slate-100 flex justify-between mt-6">
-          <Button type="button" variant="outline" className="px-7 h-10 gap-2" onClick={onBack}>
-            <ArrowLeft size={14} />
-            Back
-          </Button>
+          {mode === 'edit' ? (
+            <Button type="button" variant="outline" className="px-7 h-10" onClick={onCancel}>
+              Cancel
+            </Button>
+          ) : (
+            <Button type="button" variant="outline" className="px-7 h-10 gap-2" onClick={onBack}>
+              <ArrowLeft size={14} />
+              Back
+            </Button>
+          )}
           <Button type="submit" className="px-7 h-10 shadow-[0_4px_14px_rgba(13,148,136,0.22)]">
-            Next
+            {mode === 'edit' ? 'Save Changes' : 'Next'}
           </Button>
         </div>
       </form>
