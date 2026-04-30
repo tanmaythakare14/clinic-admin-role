@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\" branch -a)",
+      "Bash(sed -i 's/text-center max-w-\\\\[90px\\\\] leading-snug/text-center whitespace-nowrap leading-snug/g' 'C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\modules\\\\onboarding\\\\components\\\\create-profile\\\\CreateProfile.tsx' 'C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\modules\\\\onboarding\\\\components\\\\review-users\\\\ReviewUsers.tsx' 'C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\modules\\\\onboarding\\\\components\\\\review-ehr\\\\ReviewEHR.tsx')",
+      "Bash(sed -i 's/text-center max-w-\\\\[90px\\\\] leading-snug/text-center whitespace-nowrap leading-snug/g' 'C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\onboarding\\\\components\\\\create-profile\\\\CreateProfile.tsx' 'C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\onboarding\\\\components\\\\review-users\\\\ReviewUsers.tsx' 'C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\onboarding\\\\components\\\\review-ehr\\\\ReviewEHR.tsx')",
+      "Bash(cp \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\components\\\\layout\\\\LeftNav.tsx\" \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\components\\\\layout\\\\LeftNav.tsx\")",
+      "Bash(cp \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\components\\\\layout\\\\TopBar.tsx\" \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\components\\\\layout\\\\TopBar.tsx\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\@types\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\constants\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\components\\\\list\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\components\\\\layout\")",
+      "Bash(cp \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\modules\\\\patient\\\\@types\\\\index.ts\" \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\@types\\\\index.ts\")",
+      "Bash(cp \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\modules\\\\patient\\\\constants\\\\index.ts\" \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\constants\\\\index.ts\")",
+      "Bash(cp \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\modules\\\\patient\\\\components\\\\list\\\\PatientList.tsx\" \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\components\\\\list\\\\PatientList.tsx\")",
+      "Bash(cp \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\\\\src\\\\modules\\\\patient\\\\index.ts\" \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\index.ts\")",
+      "Bash(npm run *)",
+      "PowerShell(cmd /c \"rd /s /q \"\"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\adoring-hypatia-a1dfd9\"\"\")",
+      "PowerShell(cmd /c \"rd /s /q \"\"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\crazy-tereshkova-a6663b\"\"\")",
+      "PowerShell(cmd /c \"rd /s /q \"\"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\heuristic-gould-b75010\"\"\")",
+      "PowerShell(cmd /c \"rd /s /q \"\"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\.claude\\\\worktrees\\\\zen-gauss-5d1750\"\"\")",
+      "Read(//c/Users/Tanmay.Thakare.ad/Documents/Clinic Admin Role/**)",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"require\\('recharts'\\)\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Tanmay.Thakare.ad\\\\Documents\\\\Clinic Admin Role\\\\src\\\\modules\\\\patient\\\\components\\\\detail\\\\tabs\")"
+    ]
+  }
+}

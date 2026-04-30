@@ -19,12 +19,6 @@ const FEATURES = [
   },
 ];
 
-const STATS = [
-  { value: '2,400+', label: 'Active Patients' },
-  { value: '98.5%', label: 'Uptime SLA' },
-  { value: 'SOC 2', label: 'Certified' },
-];
-
 export function OnboardingLeftPanel(): React.JSX.Element {
   return (
     <div className="hidden lg:flex lg:w-[30%] flex-col relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900">
@@ -33,7 +27,7 @@ export function OnboardingLeftPanel(): React.JSX.Element {
       <div className="absolute -bottom-16 -left-16 rounded-full opacity-10 w-72 h-72 bg-white" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 bg-white w-[500px] h-[500px]" />
 
-      <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
+      <div className="relative z-10 flex flex-col h-full px-10 py-10">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center rounded-xl bg-white/20 shadow-md w-11 h-11">
@@ -47,25 +41,25 @@ export function OnboardingLeftPanel(): React.JSX.Element {
 
         <div className="flex flex-col flex-1 justify-center">
           {/* Headline */}
-          <div className="pb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold bg-white/15 text-white">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5 text-xs font-semibold bg-white/15 text-white">
               <span className="inline-block rounded-full w-1.5 h-1.5 bg-emerald-400" />
               HIPAA Compliant Platform
             </div>
-            <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-4">
+            <h1 className="text-4xl xl:text-[2.6rem] font-bold text-white leading-snug mb-3">
               Intelligent Care Management for
               <br />
               <span className="text-teal-200">Modern Clinics</span>
             </h1>
             <p className="text-white/70 text-base leading-relaxed max-w-xs">
-              Streamline patient care, manage your team, and monitor health outcomes — all in one secure platform.
+              Streamline patient care, manage your team, and monitor health outcomes all in one secure platform.
             </p>
           </div>
 
           {/* Feature highlights */}
-          <div className="space-y-8 mb-10">
+          <div className="space-y-5 w-full">
             {FEATURES.map((f) => (
-              <div key={f.title} className="flex items-start gap-3">
+              <div key={f.title} className="flex items-start gap-3 text-left">
                 <div className="flex items-center justify-center rounded-lg flex-shrink-0 mt-0.5 w-8 h-8 bg-white/15 text-white">
                   {f.icon}
                 </div>
@@ -74,19 +68,6 @@ export function OnboardingLeftPanel(): React.JSX.Element {
                   <p className="text-white/60 text-xs mt-0.5">{f.desc}</p>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Stats bar */}
-          <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5 bg-white/10 border border-white/15 flex-wrap">
-            {STATS.map((s, i) => (
-              <React.Fragment key={s.label}>
-                {i > 0 && <span className="text-white/40 text-[10px]">•</span>}
-                <span className="text-[10px]">
-                  <span className="text-white font-bold">{s.value}</span>
-                  <span className="text-white/60"> {s.label}</span>
-                </span>
-              </React.Fragment>
             ))}
           </div>
         </div>

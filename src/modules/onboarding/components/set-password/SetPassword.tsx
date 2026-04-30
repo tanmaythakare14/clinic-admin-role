@@ -94,7 +94,7 @@ export function SetPassword(): React.JSX.Element {
           <span className="font-bold text-foreground text-base">Health Telematix</span>
         </div>
 
-        <div className="w-full max-w-[640px]">
+        <div className="w-full max-w-[620px]">
           <div className="inline-flex items-center justify-center rounded-2xl mb-6 w-14 h-14 bg-primary/10 border border-primary/20">
             <KeyRound size={24} className="text-primary" />
           </div>

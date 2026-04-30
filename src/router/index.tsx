@@ -1,5 +1,5 @@
-import React from 'react';
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { RootLayout } from './RootLayout';
 import {
   SignIn,
   EmailVerification,
@@ -14,16 +14,17 @@ import {
   REVIEW_USERS_PATH,
   REVIEW_EHR_PATH,
 } from '@/modules/onboarding';
-import { DemoGuide } from '@/components/demo-guide/DemoGuide';
-
-function RootLayout(): React.JSX.Element {
-  return (
-    <>
-      <Outlet />
-      <DemoGuide />
-    </>
-  );
-}
+import {
+  PatientList,
+  PatientDetail,
+  EnrollPatientPage,
+  PATIENT_BASE_PATH,
+  PATIENT_DETAIL_PATH,
+  PATIENT_ENROLL_PATH,
+} from '@/modules/patient';
+import { UserList, UserDetail, USER_BASE_PATH, USER_DETAIL_PATH } from '@/modules/user-management';
+import { Settings, SETTINGS_PATH } from '@/modules/settings';
+import { Dashboard, DASHBOARD_PATH } from '@/modules/dashboard';
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +37,13 @@ export const router = createBrowserRouter([
       { path: CREATE_PROFILE_PATH, element: <CreateProfile /> },
       { path: REVIEW_USERS_PATH, element: <ReviewUsers /> },
       { path: REVIEW_EHR_PATH, element: <ReviewEHR /> },
+      { path: DASHBOARD_PATH, element: <Dashboard /> },
+      { path: PATIENT_BASE_PATH, element: <PatientList /> },
+      { path: PATIENT_ENROLL_PATH, element: <EnrollPatientPage /> },
+      { path: PATIENT_DETAIL_PATH, element: <PatientDetail /> },
+      { path: USER_BASE_PATH, element: <UserList /> },
+      { path: USER_DETAIL_PATH, element: <UserDetail /> },
+      { path: SETTINGS_PATH, element: <Settings /> },
     ],
   },
 ]);
