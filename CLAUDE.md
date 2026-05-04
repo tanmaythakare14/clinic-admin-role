@@ -119,3 +119,147 @@ import { patientApi } from '../../modules/patient/service/api';
 - @rules/testing.md — Vitest + @testing-library/react conventions
 - @rules/state.md — Redux Toolkit slice and thunk patterns
 - @rules/styling.md — Tailwind utility rules, shadcn/ui CSS variable conventions
+
+---
+
+## APCM Billing Requirements (Domain Knowledge)
+
+Advanced Primary Care Management (APCM) is a Medicare billing program. The following requirements govern when and how APCM services can be billed. All APCM-related UI, validations, eligibility checks, and CPT code generation logic must respect these rules.
+
+### Key Principle
+
+Not all elements must be provided every month — only those that are **clinically appropriate** for the individual patient. However, the elements below define the full scope of billable APCM services.
+
+---
+
+### 1. Patient Consent
+
+- Obtain **written or verbal consent** before starting APCM services (one-time only).
+- Consent must be documented in the patient's medical record.
+- Consent must inform the patient of:
+  - Only **1 provider** can furnish and be paid for APCM services per calendar month.
+  - The patient has the **right to stop services at any time**.
+  - **Cost sharing** may apply.
+
+---
+
+### 2. Initiating Visit
+
+- Required for **new patients** — billed separately.
+- **Not required** if the provider or another provider in the same practice has:
+  - Seen the patient **within the past 3 years**, or
+  - Provided another care management service (APCM, CCM, or PCM) **within the past year**.
+- The **Medicare Annual Wellness Visit (AWV)** may qualify as the initiating visit if the AWV is performed by the provider responsible for APCM care.
+
+---
+
+### 3. 24/7 Access & Continuity of Care
+
+- Patients or caregivers must have **24/7 access** for urgent needs to contact the care team.
+- **Real-time access** to the patient's medical information must be available.
+- Patients must be able to schedule **successive routine appointments** with a designated care team member.
+- Care must be deliverable in **alternative formats** (e.g., home visits, expanded hours).
+
+---
+
+### 4. Comprehensive Care Management
+
+- Perform **systemic needs assessments** — both medical and psychosocial.
+- Use **system-based approaches** to ensure receipt of preventive services.
+- Provide **medication reconciliation**, management, and oversight of self-management.
+
+---
+
+### 5. Care Plan (Electronic, Patient-Centered)
+
+- Must be **developed, implemented, revised, and maintained** electronically.
+- Must be **available within and outside** the billing practice to all individuals involved in the patient's care.
+- Care team members must be able to **routinely access and update** the care plan.
+- A copy must be **given to the patient or caregiver**.
+
+---
+
+### 6. Care Transitions Coordination
+
+Covers transitions between and among health care providers and settings. Includes:
+
+- **Referrals** to other providers.
+- **Follow-up after emergency department visits**.
+- **Follow-up after discharge** from a hospital, SNF, or other health care facility.
+
+Coordination must include:
+
+- **Timely exchange of electronic health information** with other providers.
+- **Timely follow-up communication** (direct contact, phone, or electronic) with the patient or caregiver **within 7 days** of discharge from an ED visit, hospital, SNF, or other facility — as clinically indicated.
+
+---
+
+### 7. Practitioner, Home- & Community-Based Care Coordination
+
+- Ongoing coordinating communication and documentation on the patient's:
+  - Psychosocial strengths
+  - Functional deficits
+  - Goals, preferences, and desired outcomes
+- Coordination spans: practitioners, home- and community-based service providers, community-based social service providers, hospitals, SNFs, and others.
+
+---
+
+### 8. Enhanced Communication Opportunities
+
+The practice must offer:
+
+- **Asynchronous, non-face-to-face** consultation methods other than phone (secure messaging, email, internet, patient portal).
+- **Remote evaluation** of pre-recorded patient information.
+- **Interprofessional phone, internet, or EHR referral services**.
+- Support for **patient-initiated digital communications** requiring clinical decisions:
+  - Virtual check-ins
+  - Digital online assessment and management
+  - E/M visits (e-visits)
+
+---
+
+### 9. Patient Population-Level Management
+
+The practice must:
+
+- **Analyze population data** to identify gaps in care.
+- **Risk-stratify** the practice population based on diagnoses, claims, or other electronic data.
+- Target services to patients based on stratification.
+
+---
+
+### 10. Performance Measurement & Reporting
+
+The practice must measure and report performance including:
+
+- Primary care quality
+- Total cost of care
+- Meaningful use of **Certified EHR Technology (CEHRT)**
+
+Reporting options:
+
+- Report the **Value in Primary Care MIPS Value Pathway (MVP)** — reporting starts in 2026 for CY 2025.
+- Participate in a **Medicare Shared Savings Program ACO**, **REACH ACO**, **Making Care Primary model**, or **Primary Care First model**.
+
+---
+
+### APCM CPT Codes Reference
+
+| CPT Code | Description                                         | Time / Level      |
+| -------- | --------------------------------------------------- | ----------------- |
+| `99424`  | APCM — First 30 min/month, low complexity           | 30 min, low       |
+| `99425`  | APCM — Each additional 30 min/month, low complexity | +30 min, low      |
+| `99426`  | APCM — First 30 min/month, moderate/high complexity | 30 min, mod/high  |
+| `99427`  | APCM — Each additional 30 min/month, moderate/high  | +30 min, mod/high |
+| `99490`  | CCM/APCM — Chronic care management, 20 min          | 20 min            |
+| `99491`  | CCM/APCM — Care mgmt, physician directed, 30 min    | 30 min, physician |
+| `99487`  | CCM/APCM — Complex chronic care management, 60 min  | 60 min, complex   |
+
+### Billing Rules for UI/Logic
+
+- **Only 1 provider** may bill APCM for a patient per calendar month — enforce single-provider lock in enrollment and billing flows.
+- **Consent must be recorded** before any APCM CPT code can be generated for a patient.
+- **Initiating visit** eligibility must be checked before flagging a new patient's first APCM bill (3-year visit history, 1-year care management history).
+- **7-day follow-up window** after discharge/ED visit should be surfaced as a task or alert in the care coordination UI.
+- **Staff interaction time** logged against a patient in a billing month feeds into CPT code eligibility (minimum thresholds per code).
+- Care plan must show **last updated date** and warn if not updated within the billing period.

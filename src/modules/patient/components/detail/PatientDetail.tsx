@@ -35,6 +35,7 @@ import { ActivityLogTab } from './tabs/ActivityLogTab';
 import { MessagesTab } from './tabs/MessagesTab';
 import { AppointmentsTab } from './tabs/AppointmentsTab';
 import { TasksTab } from './tabs/TasksTab';
+import { BillingTab } from './tabs/BillingTab';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -571,11 +572,6 @@ export function PatientDetail(): React.JSX.Element {
                   {patient.programs.length > 0 && (
                     <>
                       <span className="text-slate-300 text-[11px]">·</span>
-                      {patient.programs.includes('APCM') && (
-                        <span className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-100">
-                          Accountable Primary Care Model
-                        </span>
-                      )}
                       {patient.programs.includes('RPM') && (
                         <span className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
                           Remote Patient Monitoring
@@ -643,6 +639,7 @@ export function PatientDetail(): React.JSX.Element {
             {activeTab === 'messages' && <MessagesTab />}
             {activeTab === 'appointments' && <AppointmentsTab />}
             {activeTab === 'tasks' && <TasksTab />}
+            {activeTab === 'billing' && <BillingTab />}
             {activeTab !== 'overview' &&
               activeTab !== 'vitals' &&
               activeTab !== 'medication' &&
@@ -651,7 +648,8 @@ export function PatientDetail(): React.JSX.Element {
               activeTab !== 'activity' &&
               activeTab !== 'messages' &&
               activeTab !== 'appointments' &&
-              activeTab !== 'tasks' && <ComingSoonTab label={TABS.find((t) => t.id === activeTab)?.label ?? ''} />}
+              activeTab !== 'tasks' &&
+              activeTab !== 'billing' && <ComingSoonTab label={TABS.find((t) => t.id === activeTab)?.label ?? ''} />}
           </div>
         </main>
       </div>

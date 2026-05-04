@@ -27,6 +27,7 @@ import {
 import { UserList, UserDetail, USER_BASE_PATH, USER_DETAIL_PATH } from '@/modules/user-management';
 import { Settings, SETTINGS_PATH } from '@/modules/settings';
 import { Dashboard, DASHBOARD_PATH } from '@/modules/dashboard';
+import { BillingPage, BillingDetailPage, BILLING_BASE_PATH, BILLING_DETAIL_PATH } from '@/modules/billing';
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +47,8 @@ export const router = createBrowserRouter([
       { path: PATIENT_DETAIL_PATH, element: <PatientDetail /> },
       { path: USER_BASE_PATH, element: <UserList /> },
       { path: USER_DETAIL_PATH, element: <UserDetail /> },
+      { path: BILLING_BASE_PATH, element: <BillingPage /> },
+      { path: BILLING_DETAIL_PATH, element: <BillingDetailPage /> },
       { path: SETTINGS_PATH, element: <Settings /> },
     ],
   },

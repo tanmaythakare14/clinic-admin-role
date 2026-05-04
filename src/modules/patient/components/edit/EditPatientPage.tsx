@@ -243,6 +243,7 @@ export function EditPatientPage(): React.JSX.Element {
     });
 
     toast.success('Personal information saved successfully.');
+    navigate(`/patients/${id}`);
   }
 
   function handleSaveInsurance(data: EnrollmentStep2Values): void {
@@ -264,6 +265,7 @@ export function EditPatientPage(): React.JSX.Element {
     });
 
     toast.success('Insurance information saved successfully.');
+    navigate(`/patients/${id}`);
   }
 
   function handleSaveEmergency(data: EmergencyContactStepValues): void {
@@ -276,6 +278,7 @@ export function EditPatientPage(): React.JSX.Element {
     });
 
     toast.success('Emergency contacts saved successfully.');
+    navigate(`/patients/${id}`);
   }
 
   function handleSaveClinical(data: EnrollmentStep3Values): void {
@@ -307,6 +310,7 @@ export function EditPatientPage(): React.JSX.Element {
     });
 
     toast.success('Clinical details saved successfully.');
+    navigate(`/patients/${id}`);
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -369,7 +373,7 @@ export function EditPatientPage(): React.JSX.Element {
               </div>
 
               {/* Scrollable form container — sticky bottom bar sticks here */}
-              <div className="flex-1 overflow-y-auto px-8 py-5">
+              <div className="flex-1 overflow-y-auto px-8 pt-5 pb-0">
                 {/* Personal Info */}
                 <div className={cn(activeTab !== 'personal' && 'hidden')}>
                   <DemographicsStep

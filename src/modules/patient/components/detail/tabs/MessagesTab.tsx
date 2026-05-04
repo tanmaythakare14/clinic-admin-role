@@ -63,7 +63,7 @@ interface SessionSummary {
 const SESSIONS: Session[] = [
   {
     id: 's-001',
-    dateLabel: 'Today',
+    dateLabel: 'Apr 8, 2026',
     timeRange: '9:30 AM – 11:25 AM',
     preview: 'BP reading of 148/92 flagged. Physician scheduled telehealth at 3 PM.',
     messageCount: 10,
@@ -73,7 +73,7 @@ const SESSIONS: Session[] = [
   },
   {
     id: 's-002',
-    dateLabel: 'Yesterday',
+    dateLabel: 'Apr 7, 2026',
     timeRange: '7:12 AM – 7:45 AM',
     preview: 'Daily weight check completed. Weight stable at 172 lbs.',
     messageCount: 6,
@@ -83,7 +83,7 @@ const SESSIONS: Session[] = [
   },
   {
     id: 's-003',
-    dateLabel: 'Apr 28',
+    dateLabel: 'Apr 28, 2026',
     timeRange: '3:00 PM – 3:38 PM',
     preview: 'Medication adherence review. Lisinopril refill requested.',
     messageCount: 8,
@@ -93,7 +93,7 @@ const SESSIONS: Session[] = [
   },
   {
     id: 's-004',
-    dateLabel: 'Apr 26',
+    dateLabel: 'Apr 26, 2026',
     timeRange: '10:05 AM – 10:20 AM',
     preview: 'Patient reported mild dizziness. Nurse advised rest and hydration.',
     messageCount: 5,
@@ -108,7 +108,7 @@ const MESSAGES: Record<string, Message[]> = {
     {
       id: 'm-001',
       role: 'patient',
-      senderName: 'Sarah Mitchell',
+      senderName: 'Eleanor Vance',
       content: 'Good morning. My blood pressure reading this morning was 148/92. Should I be concerned?',
       time: '9:30 AM',
     },
@@ -123,7 +123,7 @@ const MESSAGES: Record<string, Message[]> = {
     {
       id: 'm-003',
       role: 'patient',
-      senderName: 'Sarah Mitchell',
+      senderName: 'Eleanor Vance',
       content: 'Yes, I took my Lisinopril at 8 AM as scheduled.',
       time: '9:32 AM',
     },
@@ -146,7 +146,7 @@ const MESSAGES: Record<string, Message[]> = {
     {
       id: 'm-006',
       role: 'patient',
-      senderName: 'Sarah Mitchell',
+      senderName: 'Eleanor Vance',
       content: 'Okay, I will check again at 10:30. Should I also reduce my salt intake today?',
       time: '9:50 AM',
     },
@@ -169,7 +169,7 @@ const MESSAGES: Record<string, Message[]> = {
     {
       id: 'm-009',
       role: 'patient',
-      senderName: 'Sarah Mitchell',
+      senderName: 'Eleanor Vance',
       content: 'Yes, 3 PM works for me. Thank you, doctor.',
       time: '11:14 AM',
     },
@@ -193,7 +193,7 @@ const MESSAGES: Record<string, Message[]> = {
     {
       id: 'm-202',
       role: 'patient',
-      senderName: 'Sarah Mitchell',
+      senderName: 'Eleanor Vance',
       content: 'Just weighed in — 172 lbs.',
       time: '7:18 AM',
     },
@@ -216,7 +216,7 @@ const MESSAGES: Record<string, Message[]> = {
     {
       id: 'm-205',
       role: 'patient',
-      senderName: 'Sarah Mitchell',
+      senderName: 'Eleanor Vance',
       content: 'Feeling good today, thank you. No symptoms to report.',
       time: '7:40 AM',
     },
@@ -235,7 +235,7 @@ const SUMMARIES: Record<string, SessionSummary> = {
     sessionId: 's-001',
     generatedAt: 'Today at 11:30 AM',
     overview:
-      'Patient reported an elevated BP reading of 148/92 mmHg. After medication adherence was confirmed, the care team recommended monitoring, dietary restriction, and escalated to a physician. A telehealth appointment was scheduled for 3 PM today.',
+      'Eleanor Vance reported an elevated BP reading of 148/92 mmHg. The AI Health Agent escalated the alert to the care team after confirming medication adherence. RN Jessica Park advised monitoring and restricted sodium intake to under 1,500 mg. Dr. Michael Torres reviewed the weekly BP trend and scheduled a telehealth call at 3 PM, with Ethan Brooks (DHN) sending the calendar invite.',
     keyPoints: [
       { id: 'kp-1', type: 'flag', text: 'BP 148/92 mmHg — above target (130/80 mmHg)' },
       { id: 'kp-2', type: 'clinical', text: 'Lisinopril 10 mg confirmed taken at 8:00 AM' },
@@ -245,7 +245,7 @@ const SUMMARIES: Record<string, SessionSummary> = {
       { id: 'kp-6', type: 'info', text: 'Low-sodium meal plan resource shared with patient' },
     ],
     participants: [
-      { role: 'patient', name: 'Sarah Mitchell', initials: 'SM', messages: 4 },
+      { role: 'patient', name: 'Eleanor Vance', initials: 'SM', messages: 4 },
       { role: 'ai', name: 'AI Health Agent', initials: 'AI', messages: 3 },
       { role: 'nurse', name: 'RN Jessica Park', initials: 'JP', messages: 2 },
       { role: 'physician', name: 'Dr. Michael Torres', initials: 'MT', messages: 1 },
@@ -260,14 +260,14 @@ const SUMMARIES: Record<string, SessionSummary> = {
     sessionId: 's-002',
     generatedAt: 'Yesterday at 7:50 AM',
     overview:
-      'Routine daily weight check completed. Patient reported 172 lbs, stable compared to the previous day. Patient reported no symptoms. No clinical concerns flagged.',
+      'The AI Health Agent prompted the daily weight check. Eleanor Vance logged 172 lbs — stable from the previous day. RN Jessica Park reviewed the result, confirmed no symptoms, and advised continuing the daily monitoring routine.',
     keyPoints: [
       { id: 'kp-1', type: 'clinical', text: 'Weight: 172 lbs — stable (±1 lb from yesterday)' },
       { id: 'kp-2', type: 'info', text: 'Patient reports no symptoms today' },
       { id: 'kp-3', type: 'action', text: 'Continue daily weight monitoring' },
     ],
     participants: [
-      { role: 'patient', name: 'Sarah Mitchell', initials: 'SM', messages: 2 },
+      { role: 'patient', name: 'Eleanor Vance', initials: 'SM', messages: 2 },
       { role: 'ai', name: 'AI Health Agent', initials: 'AI', messages: 2 },
       { role: 'nurse', name: 'RN Jessica Park', initials: 'JP', messages: 2 },
     ],
@@ -352,8 +352,6 @@ const POINT_CONFIG: Record<PointType, { icon: React.ReactNode; className: string
   },
 };
 
-const LEGEND_ROLES: SenderRole[] = ['patient', 'ai', 'nurse', 'physician'];
-
 function getInitials(name: string): string {
   return name
     .split(' ')
@@ -365,26 +363,48 @@ function getInitials(name: string): string {
 
 // ─── Message Bubble ───────────────────────────────────────────────────────────
 
-function MessageBubble({ msg }: { msg: Message }): React.JSX.Element {
+function MessageBubble({ msg, showSender }: { msg: Message; showSender: boolean }): React.JSX.Element {
   const cfg = ROLE_CONFIG[msg.role];
+  const isPatient = msg.role === 'patient';
+
+  // Patient: no avatar, no name — bubble only, right-aligned feel
+  // Care team: avatar + name on first of consecutive group
+  const showHeader = showSender && !isPatient;
+
   return (
-    <div className="flex items-start gap-3">
-      <div
-        className={cn(
-          'w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 text-white',
-          cfg.avatarBg
-        )}
-      >
-        {msg.role === 'ai' ? <Bot size={13} /> : getInitials(msg.senderName)}
-      </div>
+    <div className={cn('flex items-start gap-3', !showHeader && 'mt-1')}>
+      {/* Avatar — care team only, first of group */}
+      {!isPatient ? (
+        showHeader ? (
+          <div
+            className={cn(
+              'w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 text-white',
+              cfg.avatarBg
+            )}
+          >
+            {msg.role === 'ai' ? <Bot size={13} /> : getInitials(msg.senderName)}
+          </div>
+        ) : (
+          <div className="w-7 shrink-0" />
+        )
+      ) : null}
+
       <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-2 mb-1">
-          <span className="text-[12px] font-semibold text-foreground">{msg.senderName}</span>
-          <span className="text-[10.5px] text-muted-foreground">{msg.time}</span>
-        </div>
+        {/* Name + time — care team only, first of group */}
+        {showHeader && (
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="text-[12px] font-semibold text-foreground">{msg.senderName}</span>
+            <span className="text-[10.5px] text-muted-foreground">{msg.time}</span>
+          </div>
+        )}
+
+        {/* Time only for patient (no name) */}
+        {isPatient && showSender && <span className="text-[10.5px] text-muted-foreground mb-1">{msg.time}</span>}
+
         <div
           className={cn(
-            'px-3.5 py-2.5 rounded-xl rounded-tl-sm text-[12.5px] text-foreground leading-relaxed',
+            'px-3.5 py-2.5 rounded-xl text-[12.5px] text-foreground leading-relaxed w-full',
+            showHeader && !isPatient ? 'rounded-tl-sm' : '',
             cfg.bubbleBg,
             cfg.bubbleBorder
           )}
@@ -404,7 +424,6 @@ export function MessagesTab(): React.JSX.Element {
 
   const activeMessages = MESSAGES[activeSessionId] ?? [];
   const activeSummary = SUMMARIES[activeSessionId];
-  const activeSession = SESSIONS.find((s) => s.id === activeSessionId);
 
   useEffect(() => {
     if (chatRef.current) {
@@ -429,7 +448,6 @@ export function MessagesTab(): React.JSX.Element {
               {SESSIONS.length}
             </span>
           </div>
-          <p className="text-[10.5px] text-muted-foreground mt-0.5">Sarah Mitchell · RPM</p>
         </div>
 
         {/* Session list — scrollable */}
@@ -463,20 +481,6 @@ export function MessagesTab(): React.JSX.Element {
                 {/* Preview */}
                 <p className="text-[11px] text-slate-600 leading-snug line-clamp-2 mb-2">{session.preview}</p>
 
-                {/* Footer: role dots + message count */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {session.participants.map((role) => (
-                      <span
-                        key={role}
-                        className={cn('w-2 h-2 rounded-full', ROLE_CONFIG[role].dot)}
-                        title={ROLE_CONFIG[role].label}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-muted-foreground">{session.messageCount} msgs</span>
-                </div>
-
                 {/* Active indicator */}
                 {isActive && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary rounded-r-full" />}
               </button>
@@ -489,31 +493,6 @@ export function MessagesTab(): React.JSX.Element {
       {/* MIDDLE PANEL — Conversation history                                   */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden min-w-0">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
-              SM
-            </div>
-            <div>
-              <h3 className="text-[13px] font-bold text-foreground leading-tight">Sarah Mitchell</h3>
-              <p className="text-[10.5px] text-muted-foreground">
-                {activeSession?.dateLabel} &middot; {activeSession?.timeRange} &middot; {activeMessages.length} messages
-              </p>
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div className="flex items-center gap-3.5 shrink-0">
-            {LEGEND_ROLES.map((role) => (
-              <div key={role} className="flex items-center gap-1.5">
-                <span className={cn('w-2 h-2 rounded-full', ROLE_CONFIG[role].dot)} />
-                <span className="text-[10.5px] text-muted-foreground">{ROLE_CONFIG[role].label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Read-only notice */}
         <div className="flex items-center gap-2 px-5 py-1.5 bg-slate-50 border-b border-slate-100 shrink-0">
           <UserRound size={10} className="text-muted-foreground shrink-0" />
@@ -530,7 +509,9 @@ export function MessagesTab(): React.JSX.Element {
               <p className="text-[12px] text-muted-foreground">No messages in this session.</p>
             </div>
           ) : (
-            activeMessages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)
+            activeMessages.map((msg, i) => (
+              <MessageBubble key={msg.id} msg={msg} showSender={i === 0 || activeMessages[i - 1].role !== msg.role} />
+            ))
           )}
         </div>
       </div>
@@ -592,58 +573,6 @@ export function MessagesTab(): React.JSX.Element {
                       >
                         <span className="shrink-0 mt-0.5">{ptCfg.icon}</span>
                         <span>{pt.text}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="border-t border-slate-100" />
-
-              {/* Action Items */}
-              <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em] mb-2">
-                  Action Items
-                </p>
-                <div className="space-y-1.5">
-                  {activeSummary.actionItems.map((item, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <span className="w-4 h-4 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5">
-                        {i + 1}
-                      </span>
-                      <p className="text-[11.5px] text-slate-600 leading-snug">{item}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="border-t border-slate-100" />
-
-              {/* Participants */}
-              <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em] mb-2">
-                  Participants
-                </p>
-                <div className="space-y-2">
-                  {activeSummary.participants.map((p) => {
-                    const roleCfg = ROLE_CONFIG[p.role];
-                    return (
-                      <div key={p.name} className="flex items-center gap-2.5">
-                        <div
-                          className={cn(
-                            'w-6 h-6 rounded-full flex items-center justify-center text-[9.5px] font-bold text-white shrink-0',
-                            roleCfg.avatarBg
-                          )}
-                        >
-                          {p.role === 'ai' ? <Bot size={11} /> : p.initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11.5px] font-medium text-foreground truncate">{p.name}</p>
-                          <p className="text-[10px] text-muted-foreground">{roleCfg.label}</p>
-                        </div>
-                        <span className="text-[10px] text-muted-foreground shrink-0">{p.messages} msgs</span>
                       </div>
                     );
                   })}

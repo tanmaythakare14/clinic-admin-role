@@ -12,6 +12,7 @@ type DeviceStatus = 'active' | 'inactive';
 interface EnrolledProgram {
   id: string;
   code: ProgramCode;
+  label: string;
   fullName: string;
   status: ProgramStatus;
   enrolledDate: string;
@@ -99,9 +100,12 @@ const DEVICES_BY_PROGRAM: Record<ProgramCode, Device[]> = {
   ],
 };
 
-const PROGRAM_META: Record<ProgramCode, { fullName: string; enrolledDate: string; status: ProgramStatus }> = {
-  RPM: { fullName: 'Remote Patient Monitoring', enrolledDate: 'Jan 10, 2024', status: 'active' },
-  APCM: { fullName: 'Advanced Primary Care Management', enrolledDate: 'Feb 5, 2024', status: 'active' },
+const PROGRAM_META: Record<
+  ProgramCode,
+  { label: string; fullName: string; enrolledDate: string; status: ProgramStatus }
+> = {
+  RPM: { label: 'RPM', fullName: 'Remote Patient Monitoring', enrolledDate: 'Jan 10, 2024', status: 'active' },
+  APCM: { label: 'RPM Program', fullName: 'Remote Patient Monitoring', enrolledDate: 'Feb 5, 2024', status: 'active' },
 };
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -219,7 +223,14 @@ export function ProgramsDevicesTab({ programs }: { programs: ProgramType[] }): R
 
   const cfg = PROGRAM_CONFIG[programCode];
   const meta = PROGRAM_META[programCode];
-  const program: EnrolledProgram = { id: 'prog-001', code: programCode, ...meta };
+  const program: EnrolledProgram = {
+    id: 'prog-001',
+    code: programCode,
+    label: meta.label,
+    fullName: meta.fullName,
+    enrolledDate: meta.enrolledDate,
+    status: meta.status,
+  };
   const devices = DEVICES_BY_PROGRAM[programCode] ?? [];
 
   return (
@@ -232,7 +243,7 @@ export function ProgramsDevicesTab({ programs }: { programs: ProgramType[] }): R
               {cfg.icon}
             </div>
             <div>
-              <h4 className={cn('text-[15px] font-bold leading-tight', cfg.accentText)}>{program.code}</h4>
+              <h4 className={cn('text-[15px] font-bold leading-tight', cfg.accentText)}>{program.label}</h4>
               <p className={cn('text-[12px] font-medium mt-0.5 opacity-80', cfg.accentText)}>{program.fullName}</p>
             </div>
           </div>

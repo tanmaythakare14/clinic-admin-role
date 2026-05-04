@@ -1,5 +1,15 @@
 import React from 'react';
-import { ClipboardList, Target, Activity, Pill, FileText, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
+import {
+  Activity,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
+  FileText,
+  Link2,
+  Pill,
+  RefreshCw,
+  Target,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -15,6 +25,7 @@ interface CarePlanGoal {
   startDate: string;
   endDate: string;
   status: ItemStatus;
+  progress: number;
 }
 
 interface CarePlanActivity {
@@ -24,6 +35,7 @@ interface CarePlanActivity {
   startDate: string;
   endDate: string;
   status: ItemStatus;
+  progress: number;
 }
 
 interface CarePlanMedication {
@@ -73,6 +85,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Jan 10, 2024',
       endDate: 'Jul 10, 2024',
       status: 'completed',
+      progress: 100,
     },
     {
       id: 'g-002',
@@ -81,6 +94,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Jan 10, 2024',
       endDate: 'Jan 10, 2025',
       status: 'active',
+      progress: 68,
     },
     {
       id: 'g-003',
@@ -89,6 +103,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Feb 01, 2024',
       endDate: 'Jan 10, 2025',
       status: 'active',
+      progress: 45,
     },
     {
       id: 'g-004',
@@ -97,6 +112,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Mar 01, 2024',
       endDate: 'Jan 10, 2025',
       status: 'pending',
+      progress: 12,
     },
   ],
   activities: [
@@ -107,6 +123,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Jan 10, 2024',
       endDate: 'Jan 10, 2025',
       status: 'active',
+      progress: 82,
     },
     {
       id: 'a-002',
@@ -116,6 +133,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Jan 15, 2024',
       endDate: 'Jan 10, 2025',
       status: 'active',
+      progress: 60,
     },
     {
       id: 'a-003',
@@ -124,6 +142,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Feb 01, 2024',
       endDate: 'Jan 10, 2025',
       status: 'active',
+      progress: 55,
     },
     {
       id: 'a-004',
@@ -132,6 +151,7 @@ const CARE_PLAN: CarePlan = {
       startDate: 'Jan 20, 2024',
       endDate: 'Jan 20, 2024',
       status: 'completed',
+      progress: 100,
     },
   ],
   medications: [
@@ -179,41 +199,47 @@ const CARE_PLAN: CarePlan = {
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const TEMPLATE_STYLE: Record<CarePlanTemplate, { bg: string; text: string; border: string }> = {
-  Diabetes: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
-  Hypertension: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100' },
-  Obesity: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-  'Heart Failure': { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-100' },
+  Diabetes: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+  Hypertension: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
+  Obesity: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+  'Heart Failure': { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
   Custom: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200' },
 };
 
-const STATUS_STYLE: Record<ItemStatus, { bg: string; text: string; border: string; dot: string }> = {
-  active: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', dot: 'bg-emerald-500' },
-  completed: { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200', dot: 'bg-slate-400' },
-  pending: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', dot: 'bg-amber-400' },
+const STATUS_CONFIG: Record<
+  ItemStatus,
+  { bg: string; text: string; border: string; dot: string; label: string; bar: string }
+> = {
+  active: {
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    border: 'border-emerald-200',
+    dot: 'bg-emerald-500',
+    label: 'Active',
+    bar: 'bg-emerald-500',
+  },
+  completed: {
+    bg: 'bg-slate-100',
+    text: 'text-slate-500',
+    border: 'border-slate-200',
+    dot: 'bg-slate-400',
+    label: 'Completed',
+    bar: 'bg-slate-400',
+  },
+  pending: {
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    dot: 'bg-amber-400',
+    label: 'Pending',
+    bar: 'bg-amber-400',
+  },
 };
 
-// ─── Shared Sub-components ────────────────────────────────────────────────────
-
-function SectionHeader({
-  icon,
-  title,
-  count,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  count: number;
-}): React.JSX.Element {
-  return (
-    <div className="flex items-center gap-2.5 mb-3">
-      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">{icon}</div>
-      <h3 className="text-[13px] font-bold text-foreground">{title}</h3>
-      <span className="ml-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{count}</span>
-    </div>
-  );
-}
+// ─── Status Badge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: ItemStatus }): React.JSX.Element {
-  const s = STATUS_STYLE[status];
+  const s = STATUS_CONFIG[status];
   return (
     <span
       className={cn(
@@ -224,137 +250,189 @@ function StatusBadge({ status }: { status: ItemStatus }): React.JSX.Element {
       )}
     >
       <span className={cn('w-1.5 h-1.5 rounded-full', s.dot)} />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {s.label}
     </span>
   );
 }
 
-function InfoChip({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}): React.JSX.Element {
+// ─── Segmented Progress Bar ───────────────────────────────────────────────────
+
+const TOTAL_SEGMENTS = 12;
+
+function SegmentedBar({ progress, status }: { progress: number; status: ItemStatus }): React.JSX.Element {
+  const s = STATUS_CONFIG[status];
+  const filled = Math.round((progress / 100) * TOTAL_SEGMENTS);
+
   return (
-    <div className={cn(className)}>
-      <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">{label}</p>
-      <p className="text-[13px] font-medium text-foreground mt-0.5">{value}</p>
+    <div className="flex items-center gap-1">
+      {Array.from({ length: TOTAL_SEGMENTS }).map((_, i) => (
+        <div
+          key={i}
+          className={cn('flex-1 h-[6px] rounded-sm transition-all duration-300', i < filled ? s.bar : 'bg-slate-100')}
+        />
+      ))}
     </div>
   );
 }
 
-// ─── Goal Card ────────────────────────────────────────────────────────────────
+// ─── Goal / Activity Card ─────────────────────────────────────────────────────
 
-function GoalCard({ goal }: { goal: CarePlanGoal }): React.JSX.Element {
-  const isCompleted = goal.status === 'completed';
+function ItemCard({
+  title,
+  status,
+  startDate,
+  endDate,
+  description,
+  progress,
+  accentIcon,
+}: {
+  title: string;
+  status: ItemStatus;
+  startDate: string;
+  endDate: string;
+  description: string;
+  progress: number;
+  accentIcon: React.ReactNode;
+}): React.JSX.Element {
+  const s = STATUS_CONFIG[status];
+
   return (
-    <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-4">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex items-start gap-2.5">
-          <div className="mt-0.5 shrink-0">
-            {isCompleted ? (
-              <CheckCircle2 size={16} className="text-emerald-500" />
-            ) : (
-              <Circle size={16} className="text-slate-300" />
-            )}
-          </div>
-          <h4
+    <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-4 flex flex-col gap-3.5">
+      {/* Row 1 — Icon + Title + Badge */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">{accentIcon}</div>
+          <p
             className={cn(
-              'text-[13.5px] font-bold leading-tight',
-              isCompleted ? 'text-muted-foreground line-through decoration-slate-300' : 'text-foreground'
+              'text-[13px] font-semibold leading-snug',
+              status === 'completed' ? 'text-muted-foreground line-through decoration-slate-300' : 'text-foreground'
             )}
           >
-            {goal.name}
-          </h4>
+            {title}
+          </p>
         </div>
-        <StatusBadge status={goal.status} />
+        <StatusBadge status={status} />
       </div>
-      <p className="text-[12.5px] text-muted-foreground leading-relaxed mb-4 pl-[26px]">{goal.description}</p>
-      <div className="flex items-stretch divide-x divide-slate-100 pl-[26px]">
-        <div className="flex-1 pr-4">
-          <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Start Date</p>
-          <p className="text-[12.5px] font-medium text-foreground mt-0.5">{goal.startDate}</p>
+
+      {/* Row 2 — Progress label + % */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10.5px] font-bold text-muted-foreground uppercase tracking-[0.07em]">Progress</span>
+          <span className={cn('text-[12px] font-bold tabular-nums', s.text)}>{progress}%</span>
         </div>
-        <div className="flex-1 pl-4">
-          <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">End Date</p>
-          <p className="text-[12.5px] font-medium text-foreground mt-0.5">{goal.endDate}</p>
-        </div>
+        <SegmentedBar progress={progress} status={status} />
       </div>
+
+      {/* Row 3 — Dates */}
+      <div className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
+        <CalendarDays size={11} className="shrink-0" />
+        <span>{startDate}</span>
+        <span className="text-slate-300">→</span>
+        <span>{endDate}</span>
+      </div>
+
+      {/* Row 4 — Description (subtle, always visible) */}
+      <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-2 border-t border-slate-100 pt-3">
+        {description}
+      </p>
     </div>
   );
 }
 
-// ─── Activity Card ────────────────────────────────────────────────────────────
+// ─── Section Header ───────────────────────────────────────────────────────────
 
-function ActivityCard({ activity }: { activity: CarePlanActivity }): React.JSX.Element {
+function SectionHeader({
+  icon,
+  label,
+  count,
+  iconBg,
+  iconColor,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  count?: number;
+  iconBg: string;
+  iconColor: string;
+}): React.JSX.Element {
   return (
-    <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-4">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-            <Activity size={14} className="text-slate-500" />
-          </div>
-          <h4 className="text-[13.5px] font-bold text-foreground leading-tight">{activity.name}</h4>
-        </div>
-        <StatusBadge status={activity.status} />
+    <div className="flex items-center gap-2.5 mb-3">
+      <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0', iconBg)}>
+        <span className={iconColor}>{icon}</span>
       </div>
-      <p className="text-[12.5px] text-muted-foreground leading-relaxed mb-4">{activity.description}</p>
-      <div className="flex items-stretch divide-x divide-slate-100">
-        <div className="flex-1 pr-4">
-          <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Start Date</p>
-          <p className="text-[12.5px] font-medium text-foreground mt-0.5">{activity.startDate}</p>
-        </div>
-        <div className="flex-1 pl-4">
-          <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">End Date</p>
-          <p className="text-[12.5px] font-medium text-foreground mt-0.5">{activity.endDate}</p>
-        </div>
-      </div>
+      <span className="text-[13px] font-bold text-foreground">{label}</span>
+      {count !== undefined && (
+        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+          {count}
+        </span>
+      )}
+      <div className="flex-1 h-px bg-slate-100 ml-1" />
     </div>
   );
 }
 
-// ─── Medication Card (mirrors MedicationTab style) ────────────────────────────
+// ─── Medication Card ──────────────────────────────────────────────────────────
 
-function MedCard({ med }: { med: CarePlanMedication }): React.JSX.Element {
+function MedicationCard({ med }: { med: CarePlanMedication }): React.JSX.Element {
   return (
-    <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-4">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-5">
+    <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
+      {/* Top section */}
+      <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-            <Pill size={18} className="text-slate-500" />
+          <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+            <Pill size={16} className="text-slate-500" />
           </div>
           <div>
-            <h4 className="text-[14.5px] font-bold text-foreground leading-tight">{med.drugName}</h4>
+            <p className="text-[14px] font-bold text-foreground leading-tight">{med.drugName}</p>
             <p className="text-[12px] text-muted-foreground mt-0.5">
-              {med.dosageMg}mg &middot; {med.pillsPerDose} {med.pillsPerDose === 1 ? 'pill' : 'pills'} per dose
+              {med.dosageMg}mg · {med.pillsPerDose} {med.pillsPerDose === 1 ? 'pill' : 'pills'} per dose
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-          <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full border bg-slate-100 text-slate-600 border-slate-200">
-            {med.mealTime}
+
+        {/* Badges */}
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+          {med.mealTime !== 'No Restriction' && (
+            <span className="inline-flex items-center text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+              {med.mealTime}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-primary/8 text-primary border border-primary/15">
+            <Link2 size={10} />
+            {med.linkedCarePlan}
           </span>
         </div>
       </div>
 
-      {/* Details row */}
-      <div className="flex items-stretch divide-x divide-slate-100">
-        <InfoChip label="Frequency" value={med.frequency} className="flex-1 pr-4" />
-        <InfoChip label="Start Date" value={med.startDate} className="flex-1 px-4" />
-        <InfoChip label="End Date" value={med.endDate ?? 'Ongoing'} className="flex-1 pl-4" />
-      </div>
+      {/* Divider */}
+      <div className="mx-4 h-px bg-slate-100" />
 
-      {/* Notes */}
-      {med.notes && (
-        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-1.5 text-[12px] font-semibold text-slate-900">
-          <AlertCircle size={12} className="text-slate-500 shrink-0" />
-          {med.notes}
+      {/* Meta 2×2 grid */}
+      <div className="grid grid-cols-2 divide-y divide-slate-100 px-0">
+        {/* Row 1 */}
+        <div className="flex divide-x divide-slate-100">
+          <div className="flex-1 px-4 py-3">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em] mb-1">Frequency</p>
+            <p className="text-[12.5px] font-medium text-foreground leading-snug">{med.frequency}</p>
+          </div>
+          <div className="flex-1 px-4 py-3">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em] mb-1">Start Date</p>
+            <p className="text-[12.5px] font-medium text-foreground leading-snug">{med.startDate}</p>
+          </div>
         </div>
-      )}
+        {/* Row 2 */}
+        <div className="flex divide-x divide-slate-100">
+          <div className="flex-1 px-4 py-3">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em] mb-1">End Date</p>
+            <p className="text-[12.5px] font-medium text-foreground leading-snug">{med.endDate ?? 'Ongoing'}</p>
+          </div>
+          <div className="flex-1 px-4 py-3">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em] mb-1">
+              Prescribed By
+            </p>
+            <p className="text-[12.5px] font-medium text-foreground leading-snug">{med.prescribedBy}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -365,20 +443,25 @@ export function CarePlanTab(): React.JSX.Element {
   const plan = CARE_PLAN;
   const tmpl = TEMPLATE_STYLE[plan.template];
 
+  const activeGoals = plan.goals.filter((g) => g.status === 'active').length;
+  const completedGoals = plan.goals.filter((g) => g.status === 'completed').length;
+  const activeActivities = plan.activities.filter((a) => a.status === 'active').length;
+
   return (
-    <div className="space-y-6">
-      {/* ── Plan Overview ── */}
-      <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-5">
-        <div className="flex items-start justify-between gap-4 mb-5">
-          <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-              <ClipboardList size={20} className="text-slate-500" />
-            </div>
-            <div>
-              <h3 className="text-[15px] font-bold text-foreground leading-tight mb-1">{plan.name}</h3>
+    <div className="space-y-5">
+      {/* ── Plan Header ──────────────────────────────────────────────────────── */}
+      <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.05)] overflow-hidden">
+        {/* Top bar */}
+        <div className="flex items-center gap-4 px-5 py-4 border-b border-slate-100">
+          <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
+            <ClipboardList size={18} className="text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-bold text-foreground truncate leading-tight">{plan.name}</p>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span
                 className={cn(
-                  'inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full border',
+                  'inline-flex items-center text-[10.5px] font-semibold px-2.5 py-0.5 rounded-full border',
                   tmpl.bg,
                   tmpl.text,
                   tmpl.border
@@ -386,76 +469,134 @@ export function CarePlanTab(): React.JSX.Element {
               >
                 {plan.template}
               </span>
+              <span className="text-[11.5px] text-muted-foreground">
+                {plan.startDate} → {plan.endDate}
+              </span>
+              <span className="text-slate-300 text-[11px]">·</span>
+              <span className="text-[11.5px] text-muted-foreground flex items-center gap-1">
+                <RefreshCw size={10} />
+                {plan.touchpointFrequency}
+              </span>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-100 shrink-0">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             Active
           </span>
         </div>
-        <p className="text-[12.5px] text-muted-foreground leading-relaxed mb-5">{plan.description}</p>
-        <div className="flex items-stretch divide-x divide-slate-100 pt-4 border-t border-slate-100">
-          <div className="flex-1 pr-4">
-            <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">
-              Touchpoint Frequency
-            </p>
-            <p className="text-[13px] font-medium text-foreground mt-0.5">{plan.touchpointFrequency}</p>
-          </div>
-          <div className="flex-1 px-4">
-            <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">Start Date</p>
-            <p className="text-[13px] font-medium text-foreground mt-0.5">{plan.startDate}</p>
-          </div>
-          <div className="flex-1 pl-4">
-            <p className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">End Date</p>
-            <p className="text-[13px] font-medium text-foreground mt-0.5">{plan.endDate}</p>
-          </div>
+
+        {/* Description */}
+        <div className="px-5 py-3.5 border-b border-slate-100">
+          <p className="text-[12.5px] text-muted-foreground leading-relaxed">{plan.description}</p>
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 divide-x divide-slate-100">
+          {[
+            { label: 'Active Goals', value: activeGoals, accent: 'text-emerald-600' },
+            { label: 'Completed Goals', value: completedGoals, accent: 'text-slate-500' },
+            { label: 'Active Activities', value: activeActivities, accent: 'text-blue-600' },
+          ].map((stat) => (
+            <div key={stat.label} className="flex items-center gap-3 px-5 py-3.5">
+              <span className={cn('text-[26px] font-bold leading-none tabular-nums', stat.accent)}>{stat.value}</span>
+              <span className="text-[11.5px] text-muted-foreground leading-tight">{stat.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ── Goals ── */}
+      {/* ── Goals ────────────────────────────────────────────────────────────── */}
       <div>
-        <SectionHeader icon={<Target size={14} className="text-slate-500" />} title="Goals" count={plan.goals.length} />
-        <div className="grid grid-cols-2 gap-4">
+        <SectionHeader
+          icon={<Target size={14} />}
+          label="Goals"
+          count={plan.goals.length}
+          iconBg="bg-violet-50"
+          iconColor="text-violet-600"
+        />
+        <div className="grid grid-cols-2 gap-3">
           {plan.goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
+            <ItemCard
+              key={goal.id}
+              title={goal.name}
+              status={goal.status}
+              startDate={goal.startDate}
+              endDate={goal.endDate}
+              description={goal.description}
+              progress={goal.progress}
+              accentIcon={
+                goal.status === 'completed' ? (
+                  <CheckCircle2 size={15} className="text-emerald-500" />
+                ) : (
+                  <Target size={15} className="text-violet-500" />
+                )
+              }
+            />
           ))}
         </div>
       </div>
 
-      {/* ── Activities ── */}
+      {/* ── Activities ───────────────────────────────────────────────────────── */}
       <div>
         <SectionHeader
-          icon={<Activity size={14} className="text-slate-500" />}
-          title="Activities"
+          icon={<Activity size={14} />}
+          label="Activities"
           count={plan.activities.length}
+          iconBg="bg-sky-50"
+          iconColor="text-sky-600"
         />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           {plan.activities.map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} />
+            <ItemCard
+              key={activity.id}
+              title={activity.name}
+              status={activity.status}
+              startDate={activity.startDate}
+              endDate={activity.endDate}
+              description={activity.description}
+              progress={activity.progress}
+              accentIcon={
+                activity.status === 'completed' ? (
+                  <CheckCircle2 size={15} className="text-emerald-500" />
+                ) : (
+                  <Activity size={15} className="text-sky-500" />
+                )
+              }
+            />
           ))}
         </div>
       </div>
 
-      {/* ── Medications ── */}
+      {/* ── Medications ──────────────────────────────────────────────────────── */}
       <div>
         <SectionHeader
-          icon={<Pill size={14} className="text-slate-500" />}
-          title="Medications"
+          icon={<Pill size={14} />}
+          label="Medications"
           count={plan.medications.length}
+          iconBg="bg-rose-50"
+          iconColor="text-rose-500"
         />
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           {plan.medications.map((med) => (
-            <MedCard key={med.id} med={med} />
+            <MedicationCard key={med.id} med={med} />
           ))}
         </div>
       </div>
 
-      {/* ── Notes ── */}
+      {/* ── Clinical Notes ───────────────────────────────────────────────────── */}
       {plan.notes && (
         <div>
-          <SectionHeader icon={<FileText size={14} className="text-slate-500" />} title="Notes" count={1} />
-          <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-5">
-            <p className="text-[12.5px] text-muted-foreground leading-relaxed">{plan.notes}</p>
+          <SectionHeader
+            icon={<FileText size={14} />}
+            label="Clinical Notes"
+            iconBg="bg-slate-100"
+            iconColor="text-slate-500"
+          />
+          <div className="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] px-5 py-4">
+            <div className="flex items-start gap-3">
+              <div className="w-1 self-stretch rounded-full bg-slate-200 shrink-0" />
+              <p className="text-[13px] text-foreground leading-relaxed">{plan.notes}</p>
+            </div>
           </div>
         </div>
       )}

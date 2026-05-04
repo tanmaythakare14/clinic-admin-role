@@ -5,7 +5,7 @@ export const PATIENT_EDIT_PATH = '/patients/:id/edit';
 
 export const PATIENT_LIST_STORAGE_KEY = 'htx_clinic_patient_list';
 export const PATIENT_DETAIL_STORAGE_KEY = 'htx_clinic_patient_detail';
-export const PATIENT_SEED_KEY = 'htx_clinic_patient_seeded';
+export const PATIENT_SEED_KEY = 'htx_clinic_patient_seeded_v2';
 
 import type { PatientListItem } from '@/modules/patient/@types';
 
@@ -19,7 +19,7 @@ export const DUMMY_PATIENTS: PatientListItem[] = [
     email: 'eleanor.vance@healthmail.com',
     phone: '(312) 555-0101',
     pcpName: 'Dr. Marcus Reid',
-    programs: ['APCM', 'RPM'],
+    programs: ['APCM'],
     status: 'Active',
   },
   {
@@ -55,7 +55,7 @@ export const DUMMY_PATIENTS: PatientListItem[] = [
     email: 'robert.steele@healthmail.com',
     phone: '(213) 555-0394',
     pcpName: 'Dr. Marcus Reid',
-    programs: ['APCM', 'RPM'],
+    programs: ['RPM'],
     status: 'Active',
   },
   {
@@ -91,7 +91,7 @@ export const DUMMY_PATIENTS: PatientListItem[] = [
     email: 'angela.brooks@healthmail.com',
     phone: '(404) 555-0712',
     pcpName: 'Dr. Marcus Reid',
-    programs: ['APCM', 'RPM'],
+    programs: ['APCM'],
     status: 'Active',
   },
   {
@@ -139,7 +139,7 @@ export const DUMMY_PATIENTS: PatientListItem[] = [
     email: 'margaret.osei@healthmail.com',
     phone: '(773) 555-1187',
     pcpName: 'Dr. Susan Park',
-    programs: ['APCM', 'RPM'],
+    programs: ['RPM'],
     status: 'Active',
   },
   {

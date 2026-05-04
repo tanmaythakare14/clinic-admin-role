@@ -347,55 +347,64 @@ function NpiStatusBadge({ status }: { status: NpiStatus }): React.JSX.Element | 
 
 // ─── Success view ─────────────────────────────────────────────────────────────
 
-function AddSuccessView({ email }: { email: string }): React.JSX.Element {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 30);
-    return () => clearTimeout(t);
-  }, []);
+const INVITE_SUMMARY = (name: string, email: string) => [
+  { label: 'Physician Profile Created', desc: `${name}'s profile, specialty, and NPI number saved.`, step: 'Step 1' },
+  { label: 'Invite Email Sent', desc: `Invitation sent to ${email}.`, step: 'Step 2' },
+  { label: 'Portal Access Configured', desc: 'Account will be activated upon first sign-in.', step: 'Step 3' },
+];
 
+function AddSuccessView({
+  email,
+  name,
+  onClose,
+}: {
+  email: string;
+  name: string;
+  onClose: () => void;
+}): React.JSX.Element {
+  const summary = INVITE_SUMMARY(name, email);
   return (
-    <div className="flex flex-col items-center text-center py-8 px-6 gap-4">
-      <div className="relative flex items-center justify-center w-20 h-20">
-        <span className="absolute inset-0 rounded-full bg-emerald-100 animate-ping opacity-30" />
-        <span
-          className="absolute inset-[-6px] rounded-full border-2 border-emerald-200 transition-opacity duration-700"
-          style={{ opacity: mounted ? 0.5 : 0 }}
-        />
-        <div
-          className="relative w-20 h-20 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
-          style={{ transform: mounted ? 'scale(1)' : 'scale(0.4)', opacity: mounted ? 1 : 0 }}
-        >
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <path
-              d="M9 18.5l6.5 6.5 11.5-13"
-              stroke="#10b981"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray="36"
-              strokeDashoffset={mounted ? 0 : 36}
-              style={{ transition: 'stroke-dashoffset 0.45s ease 0.25s' }}
-            />
-          </svg>
+    <div className="overflow-hidden rounded-[inherit]">
+      {/* ── Gradient header ── */}
+      <div className="bg-gradient-to-b from-emerald-50/90 to-white pt-10 pb-6 flex flex-col items-center px-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_8px_32px_rgba(16,185,129,0.35)] mb-5">
+          <Check size={36} className="text-white" strokeWidth={2.8} />
         </div>
-      </div>
-      <div
-        className="space-y-1.5 transition-[transform,opacity] duration-500"
-        style={{
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? 'translateY(0)' : 'translateY(8px)',
-          transitionDelay: '0.2s',
-        }}
-      >
-        <h3 className="text-[17px] font-bold text-foreground">Invite Sent Successfully!</h3>
-        <p className="text-[13px] text-muted-foreground max-w-[340px] leading-relaxed">
-          An invitation email has been sent to{' '}
+        <h2 className="font-bold text-foreground text-[19px] tracking-tight mb-1.5">Invite Sent Successfully!</h2>
+        <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[280px]">
           <span className="font-semibold text-foreground" data-phi="true">
-            {email}
-          </span>
-          . They can use the link to set up their account.
+            {name}
+          </span>{' '}
+          has been invited to join the clinic portal as a Physician.
         </p>
+      </div>
+
+      {/* ── Summary steps ── */}
+      <div className="mx-6 mb-5 rounded-xl border border-slate-100 divide-y divide-slate-100 overflow-hidden bg-slate-50/50">
+        {summary.map((item) => (
+          <div key={item.label} className="flex items-start gap-3 px-4 py-3.5">
+            <div className="flex items-center justify-center rounded-full w-5 h-5 bg-emerald-50 border border-emerald-200 shrink-0 mt-0.5">
+              <Check size={11} className="text-emerald-600" strokeWidth={3} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-semibold text-foreground">{item.label}</p>
+              <p className="text-[11.5px] text-muted-foreground mt-0.5 leading-relaxed">{item.desc}</p>
+            </div>
+            <span className="text-[11px] font-semibold text-primary bg-primary/8 border border-primary/15 px-2 py-0.5 rounded-full shrink-0 mt-0.5">
+              {item.step}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── CTA ── */}
+      <div className="px-6 pb-6">
+        <Button
+          className="w-full h-11 text-[14px] font-semibold gap-2 shadow-[0_4px_14px_rgba(13,148,136,0.22)]"
+          onClick={onClose}
+        >
+          Done <ArrowRight size={15} />
+        </Button>
       </div>
     </div>
   );
@@ -417,6 +426,7 @@ function AddPhysicianModal({
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [invitedEmail, setInvitedEmail] = useState('');
+  const [invitedName, setInvitedName] = useState('');
   const [npiStatus, setNpiStatus] = useState<NpiStatus>('idle');
   const npiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const npiValue = useWatch({ control: form.control, name: 'npiNumber' });
@@ -452,6 +462,7 @@ function AddPhysicianModal({
     };
     onAdd(newUser);
     setInvitedEmail(values.email);
+    setInvitedName(`${values.firstName} ${values.lastName}`);
     setShowSuccess(true);
     toast.success(`Invite sent to ${values.email}`);
   }
@@ -463,9 +474,9 @@ function AddPhysicianModal({
         if (!o) onClose();
       }}
     >
-      <DialogContent className="sm:max-w-[680px] p-0 gap-0">
+      <DialogContent className={`${showSuccess ? 'sm:max-w-[400px]' : 'sm:max-w-[680px]'} p-0 gap-0 overflow-hidden`}>
         {showSuccess ? (
-          <AddSuccessView email={invitedEmail} />
+          <AddSuccessView email={invitedEmail} name={invitedName} onClose={onClose} />
         ) : (
           <>
             {/* Header */}
