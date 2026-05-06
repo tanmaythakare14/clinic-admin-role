@@ -1,30 +1,32 @@
 import React, { useState } from 'react';
 import { Activity, ChevronDown, ChevronRight } from 'lucide-react';
-// Activity is kept for the empty-state icon
 import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type EventType = 'vital' | 'staff' | 'ai' | 'message' | 'device' | 'system';
+type Category =
+  | 'Vitals & Device Data'
+  | 'Clinical Review & Decisions'
+  | 'Patient Communication'
+  | 'Care Coordination'
+  | 'Program/Billing Events'
+  | 'Alerts & System Events';
+
 type AlertLevel = 'elevated' | 'critical' | null;
 
-interface VitalDetail {
-  reading: string;
-  vitalType: string;
-  reviewedBy?: string;
-  actionTaken?: string;
+interface EventDetail {
+  fields: { label: string; value: string }[];
 }
 
 interface ActivityEvent {
   id: string;
-  type: EventType;
+  category: Category;
   title: string;
   description: string;
   time: string;
   alert?: AlertLevel;
-  categoryLabel: string;
   actor: string;
-  detail?: VitalDetail;
+  detail?: EventDetail;
 }
 
 type FilterRange = 'week' | '15days' | '30days' | 'all';
@@ -41,154 +43,285 @@ interface DayGroup {
 const TIMELINE: DayGroup[] = [
   {
     label: 'Today',
-    date: 'April 8, 2026',
+    date: 'May 6, 2026',
     daysAgo: 0,
     events: [
       {
         id: 'e-001',
-        type: 'staff',
-        title: 'Nurse Reviewed BP Reading',
-        description: 'RN Jessica Park reviewed the morning blood pressure reading and noted elevated systolic value.',
-        time: '8:45 AM',
-        alert: null,
-        categoryLabel: 'Staff Actions',
-        actor: 'RN Jessica Park',
+        category: 'Vitals & Device Data',
+        title: 'Blood Pressure Reading Received',
+        description: 'Automated reading from Omron HEM-9200T: 148/92 mmHg — above target range.',
+        time: '8:32 AM',
+        alert: 'elevated',
+        actor: 'Omron BP Monitor',
         detail: {
-          reading: '148 / 92 mmHg',
-          vitalType: 'Blood Pressure',
-          reviewedBy: 'RN Jessica Park',
-          actionTaken: 'Patient messaged to confirm medication adherence. Follow-up scheduled for tomorrow.',
+          fields: [
+            { label: 'Reading', value: '148 / 92 mmHg' },
+            { label: 'Vital Type', value: 'Blood Pressure' },
+            { label: 'Device', value: 'Omron HEM-9200T' },
+            { label: 'Target Range', value: '< 130 / 80 mmHg' },
+          ],
         },
       },
       {
         id: 'e-002',
-        type: 'vital',
-        title: 'Blood Pressure Reading Received',
-        description: 'Automated reading from Omron HEM-9200T: 148/92 mmHg',
-        time: '8:32 AM',
+        category: 'Vitals & Device Data',
+        title: 'Fasting Glucose Reading Received',
+        description: 'Morning fasting glucose from OneTouch Verio Flex: 138 mg/dL.',
+        time: '7:00 AM',
         alert: 'elevated',
-        categoryLabel: 'Vitals & RPM',
-        actor: 'Omron BP Monitor',
+        actor: 'OneTouch Glucose Meter',
         detail: {
-          reading: '148 / 92 mmHg',
-          vitalType: 'Blood Pressure',
+          fields: [
+            { label: 'Reading', value: '138 mg/dL' },
+            { label: 'Vital Type', value: 'Blood Glucose (Fasting)' },
+            { label: 'Device', value: 'OneTouch Verio Flex' },
+            { label: 'Target Range', value: '80 – 130 mg/dL' },
+          ],
         },
       },
       {
         id: 'e-003',
-        type: 'vital',
-        title: 'Glucose Reading Received',
-        description: 'Fasting glucose reading from OneTouch Verio Flex: 138 mg/dL',
-        time: '7:00 AM',
-        alert: 'elevated',
-        categoryLabel: 'Vitals & RPM',
-        actor: 'OneTouch Glucose Meter',
+        category: 'Clinical Review & Decisions',
+        title: 'Nurse Reviewed Elevated BP Reading',
+        description:
+          'RN Jessica Park reviewed the morning BP alert and messaged patient to confirm medication adherence.',
+        time: '8:45 AM',
+        alert: null,
+        actor: 'RN Jessica Park',
         detail: {
-          reading: '138 mg/dL',
-          vitalType: 'Blood Glucose',
+          fields: [
+            { label: 'Reading Reviewed', value: '148 / 92 mmHg' },
+            { label: 'Reviewed By', value: 'RN Jessica Park' },
+            { label: 'Action Taken', value: 'Patient messaged. Follow-up scheduled for tomorrow.' },
+          ],
         },
       },
       {
         id: 'e-004',
-        type: 'system',
-        title: 'RPM Compliance Update',
-        description: 'Patient has 12 of 16 required reading days this month. 4 more days needed.',
+        category: 'Alerts & System Events',
+        title: 'RPM Compliance Threshold Warning',
+        description: 'Patient has 12 of 16 required reading days this month. 4 more days needed to meet threshold.',
         time: '6:00 AM',
         alert: null,
-        categoryLabel: 'System',
         actor: 'System',
       },
     ],
   },
   {
     label: 'Yesterday',
-    date: 'April 7, 2026',
+    date: 'May 5, 2026',
     daysAgo: 1,
     events: [
       {
         id: 'e-005',
-        type: 'vital',
-        title: 'Blood Pressure Reading Received',
-        description: 'Evening reading from Omron HEM-9200T: 132/84 mmHg',
+        category: 'Vitals & Device Data',
+        title: 'Evening Blood Pressure Reading',
+        description: 'Reading from Omron HEM-9200T: 132/84 mmHg — within acceptable range.',
         time: '6:20 PM',
         alert: null,
-        categoryLabel: 'Vitals & RPM',
         actor: 'Omron BP Monitor',
         detail: {
-          reading: '132 / 84 mmHg',
-          vitalType: 'Blood Pressure',
+          fields: [
+            { label: 'Reading', value: '132 / 84 mmHg' },
+            { label: 'Vital Type', value: 'Blood Pressure' },
+            { label: 'Device', value: 'Omron HEM-9200T' },
+          ],
         },
       },
       {
         id: 'e-006',
-        type: 'message',
+        category: 'Patient Communication',
         title: 'Staff Replied to Patient Message',
-        description: "RN Jessica Park responded to the patient's question about medication timing adjustments.",
+        description:
+          "RN Jessica Park responded to the patient's question about Metformin timing and stomach discomfort.",
         time: '4:30 PM',
         alert: null,
-        categoryLabel: 'Messages',
         actor: 'RN Jessica Park',
       },
       {
         id: 'e-007',
-        type: 'ai',
-        title: 'AI Alert Generated',
-        description: 'Automated alert created for elevated morning glucose trend over 3 consecutive days.',
+        category: 'Alerts & System Events',
+        title: 'AI Alert — Elevated Glucose Trend',
+        description: 'Automated alert generated for elevated morning glucose trend over 3 consecutive days.',
         time: '9:05 AM',
         alert: 'elevated',
-        categoryLabel: 'AI Insights',
         actor: 'AI Engine',
       },
       {
         id: 'e-008',
-        type: 'vital',
-        title: 'Glucose Reading Received',
-        description: 'Morning fasting glucose from Dexcom CGM: 141 mg/dL',
+        category: 'Vitals & Device Data',
+        title: 'Morning Glucose Reading Received',
+        description: 'Fasting glucose from Dexcom CGM: 141 mg/dL.',
         time: '7:02 AM',
         alert: 'elevated',
-        categoryLabel: 'Vitals & RPM',
         actor: 'Dexcom CGM',
         detail: {
-          reading: '141 mg/dL',
-          vitalType: 'Blood Glucose',
+          fields: [
+            { label: 'Reading', value: '141 mg/dL' },
+            { label: 'Vital Type', value: 'Blood Glucose (Fasting)' },
+            { label: 'Device', value: 'Dexcom CGM' },
+          ],
         },
       },
     ],
   },
   {
-    label: 'April 5, 2026',
-    date: 'April 5, 2026',
+    label: 'May 3, 2026',
+    date: 'May 3, 2026',
     daysAgo: 3,
     events: [
       {
         id: 'e-009',
-        type: 'staff',
+        category: 'Clinical Review & Decisions',
         title: 'Care Plan Updated',
-        description: 'Dr. Michael Torres updated the Diabetes Management Plan with revised HbA1c targets.',
+        description:
+          'Dr. Michael Torres updated the Diabetes Management Plan with revised HbA1c targets and medication dosage.',
         time: '3:15 PM',
         alert: null,
-        categoryLabel: 'Staff Actions',
         actor: 'Dr. Michael Torres',
+        detail: {
+          fields: [
+            { label: 'Updated By', value: 'Dr. Michael Torres' },
+            { label: 'Plan', value: 'Comprehensive Diabetes Management Plan' },
+            { label: 'Change', value: 'HbA1c target revised to < 7.0%. Metformin dosage increased to 1000 mg.' },
+          ],
+        },
       },
       {
         id: 'e-010',
-        type: 'device',
+        category: 'Vitals & Device Data',
         title: 'Device Sync Completed',
         description: 'Omron HEM-9200T synced 14 readings successfully. All data transmitted to RPM platform.',
         time: '11:00 AM',
         alert: null,
-        categoryLabel: 'Devices',
         actor: 'Omron BP Monitor',
+        detail: {
+          fields: [
+            { label: 'Device', value: 'Omron HEM-9200T' },
+            { label: 'Readings Synced', value: '14' },
+            { label: 'Status', value: 'All data transmitted successfully' },
+          ],
+        },
       },
       {
         id: 'e-011',
-        type: 'message',
+        category: 'Patient Communication',
         title: 'Patient Sent a Message',
         description: 'Patient asked about adjusting Metformin timing to reduce stomach discomfort after meals.',
         time: '9:30 AM',
         alert: null,
-        categoryLabel: 'Messages',
-        actor: 'Robert Johnson',
+        actor: 'Sarah Mitchell',
+      },
+      {
+        id: 'e-012',
+        category: 'Care Coordination',
+        title: 'Referral Sent to Endocrinologist',
+        description:
+          'Dr. Michael Torres sent a referral to Dr. Anita Sharma (Endocrinology) for specialist review of glucose management.',
+        time: '8:00 AM',
+        alert: null,
+        actor: 'Dr. Michael Torres',
+        detail: {
+          fields: [
+            { label: 'Referred To', value: 'Dr. Anita Sharma — Endocrinology' },
+            { label: 'Reason', value: 'Persistent elevated fasting glucose despite medication adjustment' },
+            { label: 'Urgency', value: 'Routine (within 2 weeks)' },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    label: 'April 28, 2026',
+    date: 'April 28, 2026',
+    daysAgo: 8,
+    events: [
+      {
+        id: 'e-013',
+        category: 'Program/Billing Events',
+        title: 'RPM Billing Code Generated',
+        description: 'CPT 99457 generated for April — 20+ minutes of staff interaction time logged.',
+        time: '5:00 PM',
+        alert: null,
+        actor: 'System',
+        detail: {
+          fields: [
+            { label: 'CPT Code', value: '99457' },
+            { label: 'Billing Month', value: 'April 2026' },
+            { label: 'Staff Interaction', value: '24 min logged' },
+            { label: 'Reading Days', value: '18 / 16 required' },
+          ],
+        },
+      },
+      {
+        id: 'e-014',
+        category: 'Care Coordination',
+        title: 'Appointment Scheduled',
+        description: 'Follow-up telehealth appointment scheduled with Dr. Michael Torres for May 10, 2026 at 2:00 PM.',
+        time: '2:30 PM',
+        alert: null,
+        actor: 'DHN Ethan Brooks',
+      },
+      {
+        id: 'e-015',
+        category: 'Clinical Review & Decisions',
+        title: 'Monthly Physician Review Completed',
+        description:
+          'Dr. Michael Torres completed the monthly RPM data review. BP trend improving; glucose requires monitoring.',
+        time: '11:30 AM',
+        alert: null,
+        actor: 'Dr. Michael Torres',
+        detail: {
+          fields: [
+            { label: 'Reviewed By', value: 'Dr. Michael Torres' },
+            { label: 'BP Assessment', value: 'Improving — average 134/86 mmHg' },
+            { label: 'Glucose Assessment', value: 'Requires monitoring — 3-day elevated trend' },
+            { label: 'Next Review', value: 'May 28, 2026' },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    label: 'April 20, 2026',
+    date: 'April 20, 2026',
+    daysAgo: 16,
+    events: [
+      {
+        id: 'e-016',
+        category: 'Program/Billing Events',
+        title: 'Patient Enrolled in RPM Program',
+        description: 'Sarah Mitchell successfully enrolled in the Remote Patient Monitoring (RPM) program.',
+        time: '10:00 AM',
+        alert: null,
+        actor: 'RN Jessica Park',
+        detail: {
+          fields: [
+            { label: 'Program', value: 'Remote Patient Monitoring (RPM)' },
+            { label: 'Enrolled By', value: 'RN Jessica Park' },
+            { label: 'Devices Assigned', value: 'Omron HEM-9200T, OneTouch Verio Flex' },
+          ],
+        },
+      },
+      {
+        id: 'e-017',
+        category: 'Program/Billing Events',
+        title: 'Patient Consent Recorded',
+        description:
+          'Written consent obtained for RPM program participation, data collection, and cost-sharing disclosure.',
+        time: '9:45 AM',
+        alert: null,
+        actor: 'RN Jessica Park',
+      },
+      {
+        id: 'e-018',
+        category: 'Alerts & System Events',
+        title: 'Device Setup Confirmed',
+        description: 'Omron HEM-9200T and OneTouch Verio Flex successfully paired and transmitted first readings.',
+        time: '9:00 AM',
+        alert: null,
+        actor: 'System',
       },
     ],
   },
@@ -201,24 +334,32 @@ const ALERT_STYLE: Record<'elevated' | 'critical', { badge: string; leftBar: str
   critical: { badge: 'bg-rose-50 text-rose-600 border-rose-200', leftBar: 'border-l-rose-500' },
 };
 
-// Dot color per category
-const CATEGORY_DOT: Record<string, string> = {
-  'Staff Actions': 'bg-violet-400',
-  'Vitals & RPM': 'bg-rose-400',
-  'AI Insights': 'bg-sky-400',
-  Messages: 'bg-emerald-400',
-  Devices: 'bg-slate-400',
-  System: 'bg-slate-300',
+const CATEGORY_CONFIG: Record<Category, { dot: string; bg: string; text: string }> = {
+  'Vitals & Device Data': { dot: 'bg-rose-400', bg: 'bg-rose-50', text: 'text-rose-600' },
+  'Clinical Review & Decisions': { dot: 'bg-violet-400', bg: 'bg-violet-50', text: 'text-violet-600' },
+  'Patient Communication': { dot: 'bg-emerald-400', bg: 'bg-emerald-50', text: 'text-emerald-600' },
+  'Care Coordination': { dot: 'bg-sky-400', bg: 'bg-sky-50', text: 'text-sky-600' },
+  'Program/Billing Events': { dot: 'bg-amber-400', bg: 'bg-amber-50', text: 'text-amber-600' },
+  'Alerts & System Events': { dot: 'bg-slate-400', bg: 'bg-slate-100', text: 'text-slate-500' },
 };
+
+const ALL_CATEGORIES: Category[] = [
+  'Vitals & Device Data',
+  'Clinical Review & Decisions',
+  'Patient Communication',
+  'Care Coordination',
+  'Program/Billing Events',
+  'Alerts & System Events',
+];
 
 // ─── Category Tag ─────────────────────────────────────────────────────────────
 
-function CategoryTag({ label }: { label: string }): React.JSX.Element {
-  const dot = CATEGORY_DOT[label] ?? 'bg-slate-300';
+function CategoryTag({ category }: { category: Category }): React.JSX.Element {
+  const cfg = CATEGORY_CONFIG[category];
   return (
     <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', dot)} />
-      {label}
+      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dot)} />
+      {category}
     </span>
   );
 }
@@ -274,7 +415,7 @@ function EventRow({ event }: { event: ActivityEvent }): React.JSX.Element {
 
           {/* Category tag + actor */}
           <div className="flex items-center gap-2">
-            <CategoryTag label={event.categoryLabel} />
+            <CategoryTag category={event.category} />
             <span className="text-slate-300 text-[10px]">·</span>
             <span className="text-[11px] text-muted-foreground">{event.actor}</span>
           </div>
@@ -295,10 +436,9 @@ function EventRow({ event }: { event: ActivityEvent }): React.JSX.Element {
       {hasDetail && expanded && event.detail && (
         <div className="mx-5 mb-3.5 rounded-xl border border-slate-100 bg-slate-50/50 px-5 py-4">
           <div className="grid grid-cols-2 gap-x-8 gap-y-3.5">
-            <DetailField label="Reading" value={event.detail.reading} />
-            <DetailField label="Vital" value={event.detail.vitalType} />
-            {event.detail.reviewedBy && <DetailField label="Reviewed By" value={event.detail.reviewedBy} />}
-            {event.detail.actionTaken && <DetailField label="Action Taken" value={event.detail.actionTaken} />}
+            {event.detail.fields.map((f) => (
+              <DetailField key={f.label} label={f.label} value={f.value} />
+            ))}
           </div>
         </div>
       )}
@@ -319,15 +459,23 @@ const FILTERS: { key: FilterRange; label: string; maxDays: number | null }[] = [
 
 export function ActivityLogTab(): React.JSX.Element {
   const [filter, setFilter] = useState<FilterRange>('all');
+  const [categoryFilter, setCategoryFilter] = useState<Category | 'All'>('All');
 
   const activeCfg = FILTERS.find((f) => f.key === filter)!;
-  const filteredTimeline = TIMELINE.filter((g) => (activeCfg.maxDays === null ? true : g.daysAgo <= activeCfg.maxDays));
+
+  const filteredTimeline = TIMELINE.filter((g) => activeCfg.maxDays === null || g.daysAgo <= activeCfg.maxDays)
+    .map((g) => ({
+      ...g,
+      events: categoryFilter === 'All' ? g.events : g.events.filter((e) => e.category === categoryFilter),
+    }))
+    .filter((g) => g.events.length > 0);
+
   return (
     <div className="space-y-5">
-      {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5">
-        {/* Filter pills */}
-        <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-slate-100 border border-slate-200">
+      {/* ── Controls ─────────────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3">
+        {/* Date range pills */}
+        <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-slate-100 border border-slate-200 self-start">
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -343,6 +491,42 @@ export function ActivityLogTab(): React.JSX.Element {
               {f.label}
             </button>
           ))}
+        </div>
+
+        {/* Category filter pills */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setCategoryFilter('All')}
+            className={cn(
+              'px-3 py-1 rounded-full text-[11.5px] font-semibold border transition-all',
+              categoryFilter === 'All'
+                ? 'bg-foreground text-background border-foreground'
+                : 'bg-white text-muted-foreground border-slate-200 hover:border-slate-300 hover:text-foreground'
+            )}
+          >
+            All
+          </button>
+          {ALL_CATEGORIES.map((cat) => {
+            const cfg = CATEGORY_CONFIG[cat];
+            const isActive = categoryFilter === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategoryFilter(cat)}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-semibold border transition-all',
+                  isActive
+                    ? `${cfg.bg} ${cfg.text} border-current`
+                    : 'bg-white text-muted-foreground border-slate-200 hover:border-slate-300 hover:text-foreground'
+                )}
+              >
+                <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dot)} />
+                {cat}
+              </button>
+            );
+          })}
         </div>
       </div>
 

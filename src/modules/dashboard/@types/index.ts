@@ -1,12 +1,12 @@
 export type TimePeriod = 'monthly' | 'quarterly' | 'yearly';
-export type ProgramFilter = 'all' | 'RPM' | 'APCM' | 'CCM';
+export type ProgramFilter = 'all' | 'RPM' | 'APCM' | 'BHI';
 
 export interface RevenueDataPoint {
   label: string;
   total: number;
   apcm: number;
   rpm: number;
-  ccm: number;
+  bhi: number;
 }
 
 export interface KPIStat {

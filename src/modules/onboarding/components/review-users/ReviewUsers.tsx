@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -181,12 +182,18 @@ function SearchableSelect({
 }): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Exclude both the trigger AND the portal panel from outside-click
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const insideTrigger = containerRef.current?.contains(target) ?? false;
+      const insideDropdown = dropdownRef.current?.contains(target) ?? false;
+      if (!insideTrigger && !insideDropdown) {
         setOpen(false);
         setQuery('');
       }
@@ -195,17 +202,90 @@ function SearchableSelect({
     return () => document.removeEventListener('mousedown', onMouseDown);
   }, []);
 
+  // Keep dropdown position in sync while open
+  useEffect(() => {
+    if (!open) return;
+    function update() {
+      if (containerRef.current) setTriggerRect(containerRef.current.getBoundingClientRect());
+    }
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [open]);
+
   const filtered = options.filter((o) => o.toLowerCase().includes(query.toLowerCase()));
+
+  function handleOpen() {
+    if (!open && containerRef.current) {
+      setTriggerRect(containerRef.current.getBoundingClientRect());
+    }
+    setOpen((p) => !p);
+    if (!open) setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function handleSelect(opt: string) {
+    onChange(opt);
+    setOpen(false);
+    setQuery('');
+  }
+
+  const dropdownPanel =
+    open && triggerRect
+      ? ReactDOM.createPortal(
+          <div
+            ref={dropdownRef}
+            style={{
+              position: 'fixed',
+              top: triggerRect.bottom + 6,
+              left: triggerRect.left,
+              width: triggerRect.width,
+              zIndex: 9999,
+            }}
+            className="bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)]"
+          >
+            <ul
+              className={cn(
+                'py-1.5 max-h-[220px] overflow-y-auto',
+                '[&::-webkit-scrollbar]:w-[5px]',
+                '[&::-webkit-scrollbar-track]:bg-transparent',
+                '[&::-webkit-scrollbar-thumb]:rounded-full',
+                '[&::-webkit-scrollbar-thumb]:bg-slate-200',
+                'hover:[&::-webkit-scrollbar-thumb]:bg-slate-300'
+              )}
+            >
+              {filtered.length === 0 ? (
+                <li className="px-4 py-3 text-[13px] text-muted-foreground text-center">No matches found</li>
+              ) : (
+                filtered.map((opt) => (
+                  <li key={opt}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(opt)}
+                      className={cn(
+                        'w-full text-left px-4 py-2 text-[13px] transition-colors duration-100',
+                        value === opt ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
+                      )}
+                    >
+                      {opt}
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>,
+          document.body
+        )
+      : null;
 
   return (
     <div ref={containerRef} className="relative">
       <div
         role="combobox"
         aria-expanded={open}
-        onClick={() => {
-          setOpen((p) => !p);
-          if (!open) setTimeout(() => inputRef.current?.focus(), 0);
-        }}
+        onClick={handleOpen}
         className={cn(
           'flex items-center h-9 rounded-md border bg-background pl-3 pr-9 cursor-pointer select-none',
           error ? 'border-destructive' : 'border-input',
@@ -226,6 +306,9 @@ function SearchableSelect({
           )}
           onClick={(e) => {
             e.stopPropagation();
+            if (!open && containerRef.current) {
+              setTriggerRect(containerRef.current.getBoundingClientRect());
+            }
             setOpen(true);
           }}
         />
@@ -233,34 +316,8 @@ function SearchableSelect({
           {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </span>
       </div>
-      {open && (
-        <div className="absolute z-50 w-full mt-1.5 bg-white rounded-xl border border-slate-200 shadow-[0_8px_28px_rgba(0,0,0,0.10)]">
-          <ul className="py-1.5 max-h-[220px] overflow-y-auto [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-200">
-            {filtered.length === 0 ? (
-              <li className="px-4 py-3 text-[13px] text-muted-foreground text-center">No matches found</li>
-            ) : (
-              filtered.map((opt) => (
-                <li key={opt}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onChange(opt);
-                      setOpen(false);
-                      setQuery('');
-                    }}
-                    className={cn(
-                      'w-full text-left px-4 py-2 text-[13px] transition-colors duration-100',
-                      value === opt ? 'bg-primary/5 text-primary font-semibold' : 'text-foreground hover:bg-slate-50'
-                    )}
-                  >
-                    {opt}
-                  </button>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-      )}
+
+      {dropdownPanel}
     </div>
   );
 }
@@ -350,7 +407,6 @@ function NpiStatusBadge({ status }: { status: NpiStatus }): React.JSX.Element | 
 const INVITE_SUMMARY = (name: string, email: string) => [
   { label: 'Physician Profile Created', desc: `${name}'s profile, specialty, and NPI number saved.`, step: 'Step 1' },
   { label: 'Invite Email Sent', desc: `Invitation sent to ${email}.`, step: 'Step 2' },
-  { label: 'Portal Access Configured', desc: 'Account will be activated upon first sign-in.', step: 'Step 3' },
 ];
 
 function AddSuccessView({

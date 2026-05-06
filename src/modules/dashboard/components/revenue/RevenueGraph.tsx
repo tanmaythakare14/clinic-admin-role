@@ -59,14 +59,14 @@ const PROGRAM_OPTIONS: { value: ProgramFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'RPM', label: 'RPM' },
   { value: 'APCM', label: 'APCM' },
-  { value: 'CCM', label: 'CCM' },
+  { value: 'BHI', label: 'BHI' },
 ];
 
 const COLORS = {
   total: '#0d9488',
   apcm: '#0d9488',
   rpm: '#8b5cf6',
-  ccm: '#f59e0b',
+  bhi: '#f59e0b',
 } as const;
 
 const LINE_CHART_CONFIG = {
@@ -76,7 +76,7 @@ const LINE_CHART_CONFIG = {
 const BAR_CHART_CONFIG = {
   apcm: { label: 'APCM', color: COLORS.apcm },
   rpm: { label: 'RPM', color: COLORS.rpm },
-  ccm: { label: 'CCM', color: COLORS.ccm },
+  bhi: { label: 'BHI', color: COLORS.bhi },
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ export function RevenueGraph(): React.JSX.Element {
         {/* Right — Bar Chart: Revenue by Program */}
         <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] p-5">
           <p className="text-[13px] font-semibold text-foreground mb-0.5">Revenue by Program</p>
-          <p className="text-[11.5px] text-muted-foreground mb-5">APCM · RPM · CCM breakdown</p>
+          <p className="text-[11.5px] text-muted-foreground mb-5">APCM · RPM · BHI breakdown</p>
           <ChartContainer config={BAR_CHART_CONFIG} className="h-[220px] w-full aspect-auto">
             <BarChart
               data={data}
@@ -163,8 +163,8 @@ export function RevenueGraph(): React.JSX.Element {
               {(program === 'all' || program === 'RPM') && (
                 <Bar dataKey="rpm" fill={COLORS.rpm} radius={[3, 3, 0, 0]} />
               )}
-              {(program === 'all' || program === 'CCM') && (
-                <Bar dataKey="ccm" fill={COLORS.ccm} radius={[3, 3, 0, 0]} />
+              {(program === 'all' || program === 'BHI') && (
+                <Bar dataKey="bhi" fill={COLORS.bhi} radius={[3, 3, 0, 0]} />
               )}
             </BarChart>
           </ChartContainer>
@@ -174,7 +174,7 @@ export function RevenueGraph(): React.JSX.Element {
             {[
               { key: 'apcm', label: 'APCM', color: COLORS.apcm },
               { key: 'rpm', label: 'RPM', color: COLORS.rpm },
-              { key: 'ccm', label: 'CCM', color: COLORS.ccm },
+              { key: 'bhi', label: 'BHI', color: COLORS.bhi },
             ]
               .filter((l) => program === 'all' || program === l.key.toUpperCase())
               .map((l) => (

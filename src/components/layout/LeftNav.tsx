@@ -163,7 +163,7 @@ export function LeftNav({ collapsed, onToggle }: LeftNavProps): React.JSX.Elemen
             >
               <button
                 type="button"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/login')}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[13px] text-red-600 hover:bg-red-50 transition-colors"
               >
                 <LogOut size={14} />

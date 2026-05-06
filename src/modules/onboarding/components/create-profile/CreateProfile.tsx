@@ -3,12 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import { Activity, ArrowRight, Check, Upload } from 'lucide-react';
+import { Activity, ArrowRight, Check, Lock, Mail, Upload, User } from 'lucide-react';
 import { OnboardingLeftPanel } from '../onboarding-left-panel';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { CREATE_PROFILE_PATH, REVIEW_USERS_PATH } from '../../constants';
@@ -123,6 +122,47 @@ export function CreateProfile(): React.JSX.Element {
             </p>
           </div>
 
+          {/* ── Account Details Card (read-only) ── */}
+          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden mb-6">
+            {/* Card header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/60">
+              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Account Details</p>
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-medium bg-slate-100 border border-slate-200 rounded-full px-2.5 py-0.5">
+                <Lock size={9} strokeWidth={2.5} />
+                From invitation
+              </span>
+            </div>
+
+            {/* Card body */}
+            <div className="grid grid-cols-2 divide-x divide-slate-100">
+              {/* Name */}
+              <div className="flex items-center gap-3 px-5 py-4">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <User size={15} className="text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] text-muted-foreground font-medium mb-0.5">Admin Name</p>
+                  <p className="text-[13.5px] font-semibold text-foreground truncate" data-phi="true">
+                    {MOCK_ADMIN.name}
+                  </p>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center gap-3 px-5 py-4">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <Mail size={15} className="text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] text-muted-foreground font-medium mb-0.5">Email Address</p>
+                  <p className="text-[13.5px] font-semibold text-foreground truncate" data-phi="true">
+                    {MOCK_ADMIN.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               {/* Avatar upload */}
@@ -168,37 +208,6 @@ export function CreateProfile(): React.JSX.Element {
                 </div>
               </div>
 
-              {/* Admin Name + Email — disabled, side by side */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="admin-name">Admin Name</Label>
-                  <Input
-                    id="admin-name"
-                    value={MOCK_ADMIN.name}
-                    disabled
-                    className="h-11 text-sm bg-muted cursor-not-allowed"
-                    readOnly
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Name is pre-filled from your invitation and cannot be changed.
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="admin-email">Email Address</Label>
-                  <Input
-                    id="admin-email"
-                    value={MOCK_ADMIN.email}
-                    disabled
-                    className="h-11 text-sm bg-muted cursor-not-allowed"
-                    readOnly
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Email is linked to your invitation and cannot be changed.
-                  </p>
-                </div>
-              </div>
-
               {/* Phone — editable */}
               <FormField
                 control={form.control}
@@ -215,6 +224,7 @@ export function CreateProfile(): React.JSX.Element {
                           type="tel"
                           placeholder="(555) 000-0000"
                           autoComplete="tel"
+                          data-phi="true"
                           className="flex-1 px-3 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
                           value={field.value}
                           onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}

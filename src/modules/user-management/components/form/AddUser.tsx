@@ -393,7 +393,6 @@ function NpiStatusBadge({ status }: { status: NpiStatus }): React.JSX.Element | 
 const INVITE_SUMMARY = (name: string, email: string) => [
   { label: 'Physician Profile Created', desc: `${name}'s profile, specialty, and NPI number saved.`, step: 'Step 1' },
   { label: 'Invite Email Sent', desc: `Invitation sent to ${email}.`, step: 'Step 2' },
-  { label: 'Portal Access Configured', desc: 'Account will be activated upon first sign-in.', step: 'Step 3' },
 ];
 
 function SuccessView({

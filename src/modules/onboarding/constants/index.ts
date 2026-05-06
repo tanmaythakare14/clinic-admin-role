@@ -7,3 +7,5 @@ export const REVIEW_USERS_PATH = '/review-users';
 export const REVIEW_EHR_PATH = '/review-ehr';
 export const DASHBOARD_PATH = '/dashboard';
 export const FORGOT_PASSWORD_PATH = '/forgot-password';
+export const LOGIN_PATH = '/login';
+export const RESET_PASSWORD_PATH = '/reset-password';
